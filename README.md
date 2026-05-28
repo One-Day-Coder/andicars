@@ -6,6 +6,7 @@ Sitio web y base inicial para una agencia de compra y venta de autos.
 
 La base nueva esta preparada con Next.js + Supabase.
 Lee primero `PASO_A_PASO.md`.
+Para entender como usar cada modulo, lee `MANUAL_ANDICARS.md`.
 
 ## Web vieja
 
