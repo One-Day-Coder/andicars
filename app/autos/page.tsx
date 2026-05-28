@@ -1,5 +1,5 @@
 import { SiteHeader } from "@/components/SiteHeader";
-import { VehicleCard } from "@/components/VehicleCard";
+import { PublicVehicleCatalog } from "@/components/PublicVehicleCatalog";
 import { demoVehicles } from "@/lib/demo-data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { vehicleCardSelect } from "@/lib/vehicle-queries";
@@ -40,18 +40,7 @@ export default async function AutosPage() {
           <h1>Autos en venta</h1>
           <p>Vehiculos publicados desde el panel interno de AndiCars.</p>
         </section>
-        <section className="car-grid">
-          {vehicles.map((vehicle) => (
-            <VehicleCard key={vehicle.id} vehicle={vehicle} />
-          ))}
-        </section>
-        {errorMessage ? <p className="empty-state">Error de Supabase: {errorMessage}</p> : null}
-        {vehicles.length === 0 ? (
-          <p className="empty-state">
-            Todavia no hay vehiculos publicados. En el panel, cada auto debe tener
-            "Publicar en la web" activado y estado "Disponible" o "Reservado".
-          </p>
-        ) : null}
+        <PublicVehicleCatalog initialVehicles={vehicles} initialError={errorMessage} />
       </main>
     </>
   );
