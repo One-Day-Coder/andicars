@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
+import { PasswordRecoveryRedirect } from "@/components/PasswordRecoveryRedirect";
 import { VehicleCard } from "@/components/VehicleCard";
 import { demoVehicles } from "@/lib/demo-data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -35,6 +36,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <PasswordRecoveryRedirect />
       <SiteHeader />
       <main>
         <section className="hero" id="inicio" aria-label="Presentacion de AndiCars">
