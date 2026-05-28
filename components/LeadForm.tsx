@@ -27,14 +27,13 @@ export function LeadForm({ vehicleId, vehicleTitle }: LeadFormProps) {
       return;
     }
 
-    const { error } = await supabase.from("leads").insert({
-      vehicle_id: vehicleId,
-      customer_name: customerName,
-      phone,
-      email: email || null,
-      message: message || `Consulta por ${vehicleTitle}`,
-      source: "web",
-      status: "nuevo"
+    const leadMessage = message || `Consulta por ${vehicleTitle}`;
+    const { error } = await supabase.rpc("submit_lead", {
+      p_vehicle_id: vehicleId,
+      p_customer_name: customerName,
+      p_phone: phone,
+      p_email: email || "",
+      p_message: leadMessage
     });
 
     if (error) {

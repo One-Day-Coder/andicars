@@ -54,6 +54,13 @@ export default function AdminPage() {
                 Abrir reportes
               </Link>
             </article>
+            <article>
+              <h3>Configuracion</h3>
+              <p>WhatsApp, datos generales y anti-spam.</p>
+              <Link className="button light" href="/admin/configuracion">
+                Abrir configuracion
+              </Link>
+            </article>
           </section>
         </main>
       </AdminGuard>

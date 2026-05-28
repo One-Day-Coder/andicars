@@ -68,6 +68,23 @@ create table if not exists public.sales (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.app_settings (
+  id boolean primary key default true,
+  agency_name text not null default 'AndiCars',
+  whatsapp_number text not null default '5491112345678',
+  whatsapp_message_template text not null default 'Hola AndiCars, quiero consultar por el {vehicle}.',
+  contact_email text,
+  area text,
+  lead_spam_protection_enabled boolean not null default false,
+  lead_spam_window_hours integer not null default 24,
+  updated_at timestamptz not null default now(),
+  constraint app_settings_single_row check (id = true)
+);
+
+insert into public.app_settings (id)
+values (true)
+on conflict (id) do nothing;
+
 create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
   vehicle_id uuid references public.vehicles(id) on delete set null,
@@ -94,6 +111,12 @@ drop trigger if exists vehicles_set_updated_at on public.vehicles;
 
 create trigger vehicles_set_updated_at
 before update on public.vehicles
+for each row execute function public.set_updated_at();
+
+drop trigger if exists app_settings_set_updated_at on public.app_settings;
+
+create trigger app_settings_set_updated_at
+before update on public.app_settings
 for each row execute function public.set_updated_at();
 
 create or replace function public.is_admin()
@@ -128,6 +151,7 @@ alter table public.vehicles enable row level security;
 alter table public.vehicle_photos enable row level security;
 alter table public.vehicle_expenses enable row level security;
 alter table public.sales enable row level security;
+alter table public.app_settings enable row level security;
 alter table public.leads enable row level security;
 
 drop policy if exists "Admins can read admin users" on public.admin_users;
@@ -188,6 +212,19 @@ to authenticated
 using (public.can_manage_sales())
 with check (public.can_manage_sales());
 
+drop policy if exists "Public can read app settings" on public.app_settings;
+create policy "Public can read app settings"
+on public.app_settings for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Admins can manage app settings" on public.app_settings;
+create policy "Admins can manage app settings"
+on public.app_settings for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
 drop policy if exists "Anyone can create leads" on public.leads;
 create policy "Anyone can create leads"
 on public.leads for insert
@@ -200,3 +237,72 @@ on public.leads for all
 to authenticated
 using (public.is_admin())
 with check (public.is_admin());
+
+create or replace function public.submit_lead(
+  p_vehicle_id uuid,
+  p_customer_name text,
+  p_phone text,
+  p_email text,
+  p_message text
+)
+returns uuid as $$
+declare
+  settings public.app_settings%rowtype;
+  normalized_phone text;
+  normalized_email text;
+  duplicate_lead_id uuid;
+  new_lead_id uuid;
+begin
+  select *
+  into settings
+  from public.app_settings
+  where id = true;
+
+  normalized_phone := regexp_replace(coalesce(p_phone, ''), '[^0-9]', '', 'g');
+  normalized_email := lower(nullif(trim(coalesce(p_email, '')), ''));
+
+  if coalesce(settings.lead_spam_protection_enabled, false) then
+    select leads.id
+    into duplicate_lead_id
+    from public.leads
+    where leads.vehicle_id = p_vehicle_id
+      and leads.created_at >= now() - make_interval(hours => coalesce(settings.lead_spam_window_hours, 24))
+      and (
+        regexp_replace(coalesce(leads.phone, ''), '[^0-9]', '', 'g') = normalized_phone
+        or (
+          normalized_email is not null
+          and lower(coalesce(leads.email, '')) = normalized_email
+        )
+      )
+    limit 1;
+
+    if duplicate_lead_id is not null then
+      raise exception 'Ya recibimos tu consulta por este vehiculo. Si queres consultar por otro auto, podes hacerlo sin problema.';
+    end if;
+  end if;
+
+  insert into public.leads (
+    vehicle_id,
+    customer_name,
+    phone,
+    email,
+    message,
+    source,
+    status
+  )
+  values (
+    p_vehicle_id,
+    p_customer_name,
+    p_phone,
+    nullif(trim(coalesce(p_email, '')), ''),
+    nullif(trim(coalesce(p_message, '')), ''),
+    'web',
+    'nuevo'
+  )
+  returning id into new_lead_id;
+
+  return new_lead_id;
+end;
+$$ language plpgsql security definer;
+
+grant execute on function public.submit_lead(uuid, text, text, text, text) to anon, authenticated;
