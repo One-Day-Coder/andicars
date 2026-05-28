@@ -89,6 +89,12 @@ database/app-settings.sql
 
 Agrega configuracion del panel: WhatsApp, email, zona y anti-spam.
 
+```text
+database/admin-users-management.sql
+```
+
+Permite que un usuario `owner` administre usuarios internos desde el panel.
+
 ## 4. Vehiculos
 
 Ruta:
@@ -402,7 +408,8 @@ Por ahora, si queres agregar otro admin:
 
 1. Crear usuario en Supabase Authentication.
 2. Copiar su User UID.
-3. Insertarlo en `admin_users`.
+3. Entrar a `Panel > Usuarios`.
+4. Pegar su User UID, email visible y rol.
 
 Ejemplo:
 
@@ -410,6 +417,22 @@ Ejemplo:
 insert into public.admin_users (user_id, role)
 values ('PEGAR_UID_AQUI', 'seller');
 ```
+
+Tambien existe la pantalla:
+
+```text
+/admin/usuarios
+```
+
+Desde ahi un `owner` puede:
+
+- ver usuarios internos
+- cargar el email visible
+- cambiar rol
+- quitar acceso al panel
+
+Por seguridad, esta pantalla no crea el usuario de login en Supabase.
+Primero hay que crearlo en `Authentication > Users`.
 
 ## 14. Cambiar contrasena
 

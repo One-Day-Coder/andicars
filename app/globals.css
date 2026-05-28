@@ -717,6 +717,13 @@ textarea {
   gap: 18px;
 }
 
+.users-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.35fr) minmax(260px, 0.65fr);
+  gap: 18px;
+  align-items: start;
+}
+
 .report-rate-field {
   width: min(320px, 100%);
   margin-top: 18px;
@@ -796,6 +803,53 @@ textarea {
 
 .negative-money {
   color: var(--red) !important;
+}
+
+.role-help-list,
+.user-list {
+  display: grid;
+  gap: 12px;
+}
+
+.role-help-list article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 12px;
+}
+
+.role-help-list strong,
+.role-help-list p {
+  margin: 0;
+}
+
+.role-help-list p {
+  color: var(--muted);
+}
+
+.user-list {
+  margin-top: 18px;
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(220px, 0.8fr) minmax(160px, 0.5fr) auto;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 14px;
+}
+
+.user-row h3,
+.user-row p {
+  margin: 0;
+}
+
+.user-row p {
+  color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .expense-total {
@@ -1332,8 +1386,10 @@ pre {
     .summary-grid,
     .expenses-layout,
     .sales-layout,
+    .users-layout,
     .report-grid,
     .report-row,
+    .user-row,
     .expense-filters,
     .sale-filters,
     .expense-row,

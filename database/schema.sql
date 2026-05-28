@@ -5,6 +5,7 @@ create extension if not exists "pgcrypto";
 
 create table if not exists public.admin_users (
   user_id uuid primary key references auth.users(id) on delete cascade,
+  email text,
   role text not null default 'owner'
     check (role in ('owner', 'manager', 'seller', 'operator')),
   created_at timestamptz not null default now()
@@ -146,6 +147,11 @@ returns boolean as $$
   select coalesce(public.current_user_role() in ('owner', 'manager', 'seller'), false);
 $$ language sql stable security definer;
 
+create or replace function public.can_manage_admin_users()
+returns boolean as $$
+  select coalesce(public.current_user_role() = 'owner', false);
+$$ language sql stable security definer;
+
 alter table public.admin_users enable row level security;
 alter table public.vehicles enable row level security;
 alter table public.vehicle_photos enable row level security;
@@ -159,6 +165,13 @@ create policy "Admins can read admin users"
 on public.admin_users for select
 to authenticated
 using (public.is_admin());
+
+drop policy if exists "Owners can manage admin users" on public.admin_users;
+create policy "Owners can manage admin users"
+on public.admin_users for all
+to authenticated
+using (public.can_manage_admin_users())
+with check (public.can_manage_admin_users());
 
 drop policy if exists "Public can read published vehicles" on public.vehicles;
 create policy "Public can read published vehicles"

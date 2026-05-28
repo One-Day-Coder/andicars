@@ -114,3 +114,12 @@ export type AppSettings = {
   lead_spam_window_hours: number;
   updated_at: string;
 };
+
+export type AdminRole = "owner" | "manager" | "seller" | "operator";
+
+export type AdminUser = {
+  user_id: string;
+  email: string | null;
+  role: AdminRole;
+  created_at: string;
+};

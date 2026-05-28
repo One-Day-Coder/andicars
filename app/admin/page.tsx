@@ -61,6 +61,13 @@ export default function AdminPage() {
                 Abrir configuracion
               </Link>
             </article>
+            <article>
+              <h3>Usuarios</h3>
+              <p>Roles y accesos internos para el panel.</p>
+              <Link className="button light" href="/admin/usuarios">
+                Abrir usuarios
+              </Link>
+            </article>
           </section>
         </main>
       </AdminGuard>
