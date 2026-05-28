@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { LeadForm } from "@/components/LeadForm";
 import { VehicleGallery } from "@/components/VehicleGallery";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { demoVehicles } from "@/lib/demo-data";
 import { formatKm, formatUsd } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { vehicleCardSelect } from "@/lib/vehicle-queries";
-import type { AppSettings, Vehicle, VehiclePhoto } from "@/types/vehicle";
+import type { Vehicle, VehiclePhoto } from "@/types/vehicle";
 
 export const dynamic = "force-dynamic";
 
@@ -61,30 +62,6 @@ async function getVehiclePhotos(id: string): Promise<VehiclePhoto[]> {
   return data;
 }
 
-async function getAppSettings(): Promise<Pick<AppSettings, "whatsapp_number" | "whatsapp_message_template">> {
-  const fallback = {
-    whatsapp_number: "5491112345678",
-    whatsapp_message_template: "Hola AndiCars, quiero consultar por el {vehicle}."
-  };
-  const supabase = createSupabaseServerClient();
-
-  if (!supabase) {
-    return fallback;
-  }
-
-  const { data, error } = await supabase
-    .from("app_settings")
-    .select("whatsapp_number, whatsapp_message_template")
-    .eq("id", true)
-    .single();
-
-  if (error || !data) {
-    return fallback;
-  }
-
-  return data;
-}
-
 export default async function VehicleDetailPage({ params }: VehicleDetailPageProps) {
   const vehicle = await getVehicle(params.id);
 
@@ -93,12 +70,7 @@ export default async function VehicleDetailPage({ params }: VehicleDetailPagePro
   }
 
   const photos = await getVehiclePhotos(vehicle.id);
-  const settings = await getAppSettings();
   const title = `${vehicle.brand} ${vehicle.model}${vehicle.version ? ` ${vehicle.version}` : ""}`;
-  const whatsappVehicle = `${title} ${vehicle.year}`;
-  const whatsappText = encodeURIComponent(
-    settings.whatsapp_message_template.replace("{vehicle}", whatsappVehicle)
-  );
   const galleryImages = [
     ...(vehicle.main_photo_url ? [vehicle.main_photo_url] : []),
     ...photos.map((photo) => photo.url)
@@ -135,9 +107,7 @@ export default async function VehicleDetailPage({ params }: VehicleDetailPagePro
           </div>
           <p>{vehicle.description || "Unidad seleccionada por AndiCars."}</p>
           <div className="hero-actions">
-            <a className="button primary" href={`https://wa.me/${settings.whatsapp_number}?text=${whatsappText}`} target="_blank" rel="noreferrer">
-              Consultar por WhatsApp
-            </a>
+            <WhatsAppButton vehicleTitle={`${title} ${vehicle.year}`} />
             <Link className="button light" href="/autos">
               Volver al catalogo
             </Link>

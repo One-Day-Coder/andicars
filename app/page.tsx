@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PublicContactInfo } from "@/components/PublicContactInfo";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PasswordRecoveryRedirect } from "@/components/PasswordRecoveryRedirect";
 import { VehicleCard } from "@/components/VehicleCard";
@@ -143,6 +144,7 @@ export default async function HomePage() {
             </article>
           </div>
         </section>
+        <PublicContactInfo />
       </main>
     </>
   );

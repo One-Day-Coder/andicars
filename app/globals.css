@@ -452,11 +452,45 @@ textarea {
   background: var(--white);
 }
 
+.contact-section {
+  background: var(--paper);
+}
+
 .service-grid article {
   display: grid;
   gap: 12px;
   align-content: start;
   padding: 24px;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.contact-grid article {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  padding: 18px;
+}
+
+.contact-grid span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.contact-grid a,
+.contact-grid strong {
+  color: var(--teal-dark);
+  font-size: 1.1rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .admin-layout {
@@ -1252,6 +1286,7 @@ pre {
 
   .car-grid,
   .service-grid,
+  .contact-grid,
   .split-section,
   .admin-layout,
   .vehicle-form,
