@@ -50,6 +50,32 @@ const vehicleStatusOptions: Array<{ value: VehicleStatus; label: string }> = [
   { value: "entregado", label: "Entregado" }
 ];
 
+function getCatalogVisibility(vehicle: Vehicle) {
+  const visibleStatuses: VehicleStatus[] = ["disponible", "reservado"];
+
+  if (!vehicle.is_published) {
+    return {
+      label: "Oculto manualmente",
+      detail: "No aparece porque no esta publicado.",
+      className: "status-badge"
+    };
+  }
+
+  if (!visibleStatuses.includes(vehicle.status)) {
+    return {
+      label: "Publicado, no visible",
+      detail: `No aparece porque el estado es ${vehicle.status.replace("_", " ")}.`,
+      className: "status-badge warning"
+    };
+  }
+
+  return {
+    label: "Visible en catalogo",
+    detail: "Aparece en Autos en venta.",
+    className: "status-badge published"
+  };
+}
+
 export function VehicleForm() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [form, setForm] = useState<FormState>(initialForm);
@@ -560,6 +586,7 @@ export function VehicleForm() {
           <div className="vehicle-list">
             {vehicles.map((vehicle) => {
               const title = `${vehicle.brand} ${vehicle.model}${vehicle.version ? ` ${vehicle.version}` : ""}`;
+              const catalogVisibility = getCatalogVisibility(vehicle);
 
               return (
                 <article className="vehicle-row" key={vehicle.id}>
@@ -584,6 +611,10 @@ export function VehicleForm() {
                   <span className={vehicle.is_published ? "status-badge published" : "status-badge"}>
                     {vehicle.is_published ? "Publicado" : "Oculto"}
                   </span>
+                  <div className="catalog-visibility">
+                    <span className={catalogVisibility.className}>{catalogVisibility.label}</span>
+                    <p>{catalogVisibility.detail}</p>
+                  </div>
                   <div className="row-actions">
                     <button className="button light" type="button" onClick={() => editVehicle(vehicle)}>
                       Editar

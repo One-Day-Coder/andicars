@@ -8,6 +8,8 @@ type Summary = {
   totalVehicles: number;
   publishedVehicles: number;
   hiddenVehicles: number;
+  visibleCatalogVehicles: number;
+  publishedButNotVisibleVehicles: number;
   availableVehicles: number;
   reservedVehicles: number;
   totalLeads: number;
@@ -19,6 +21,8 @@ const initialSummary: Summary = {
   totalVehicles: 0,
   publishedVehicles: 0,
   hiddenVehicles: 0,
+  visibleCatalogVehicles: 0,
+  publishedButNotVisibleVehicles: 0,
   availableVehicles: 0,
   reservedVehicles: 0,
   totalLeads: 0,
@@ -63,6 +67,8 @@ export function AdminSummary() {
       totalVehicles: vehicles.length,
       publishedVehicles: vehicles.filter((vehicle) => vehicle.is_published).length,
       hiddenVehicles: vehicles.filter((vehicle) => !vehicle.is_published).length,
+      visibleCatalogVehicles: vehicles.filter((vehicle) => vehicle.is_published && ["disponible", "reservado"].includes(vehicle.status)).length,
+      publishedButNotVisibleVehicles: vehicles.filter((vehicle) => vehicle.is_published && !["disponible", "reservado"].includes(vehicle.status)).length,
       availableVehicles: vehicles.filter((vehicle) => vehicle.status === "disponible").length,
       reservedVehicles: vehicles.filter((vehicle) => vehicle.status === "reservado").length,
       totalLeads: leads.length,
@@ -97,6 +103,11 @@ export function AdminSummary() {
           <span>Vehiculos</span>
           <strong>{summary.totalVehicles}</strong>
           <p>{summary.publishedVehicles} publicados / {summary.hiddenVehicles} ocultos</p>
+        </article>
+        <article>
+          <span>Catalogo publico</span>
+          <strong>{summary.visibleCatalogVehicles}</strong>
+          <p>{summary.publishedButNotVisibleVehicles} publicados no visibles por estado</p>
         </article>
         <article>
           <span>Disponibles</span>

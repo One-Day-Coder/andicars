@@ -971,7 +971,7 @@ textarea {
 
 .vehicle-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto minmax(170px, 220px) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto minmax(170px, 220px) auto minmax(190px, 260px) auto;
   gap: 14px;
   align-items: center;
   border: 1px solid var(--line);
@@ -1029,6 +1029,22 @@ textarea {
 .status-badge.published {
   background: rgba(15, 118, 110, 0.12);
   color: var(--teal-dark);
+}
+
+.status-badge.warning {
+  background: rgba(217, 146, 46, 0.16);
+  color: #7a4a08;
+}
+
+.catalog-visibility {
+  display: grid;
+  gap: 6px;
+}
+
+.catalog-visibility p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
 }
 
 .photo-field {
