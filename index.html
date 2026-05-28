@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="AndiCars compra y vende autos seleccionados con financiacion, tasacion y asesoria personalizada."
+    />
+    <title>AndiCars | Compra y venta de autos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header" data-header>
+      <a class="brand" href="#inicio" aria-label="AndiCars inicio">
+        <span class="brand-mark">A</span>
+        <span>AndiCars</span>
+      </a>
+
+      <button class="menu-button" type="button" data-menu-button aria-label="Abrir menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="main-nav" data-menu>
+        <a href="#catalogo">Autos</a>
+        <a href="#vender">Vender mi auto</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio" aria-label="Presentacion de AndiCars">
+        <img src="assets/hero-andicars.png" alt="Showroom moderno de autos seleccionados" />
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <p class="eyebrow">Agencia de compra y venta de autos</p>
+          <h1>AndiCars</h1>
+          <p>
+            Elegi tu proximo auto con respaldo real, unidades verificadas y una
+            atencion clara desde la primera consulta hasta la entrega.
+          </p>
+          <div class="hero-actions" aria-label="Acciones principales">
+            <a class="button primary" href="#catalogo">Ver autos</a>
+            <a class="button ghost" href="#vender">Tasame mi auto</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="trust-strip" aria-label="Ventajas principales">
+        <div>
+          <strong>48 hs</strong>
+          <span>para una tasacion inicial</span>
+        </div>
+        <div>
+          <strong>100%</strong>
+          <span>unidades revisadas</span>
+        </div>
+        <div>
+          <strong>Planes</strong>
+          <span>de financiacion flexibles</span>
+        </div>
+      </section>
+
+      <section class="section catalog-section" id="catalogo">
+        <div class="section-heading">
+          <p class="eyebrow">Stock destacado</p>
+          <h2>Autos listos para conocer</h2>
+          <p>
+            Estos vehiculos son de ejemplo para que veas como quedaria el sitio.
+            Despues podemos reemplazarlos por el stock real de AndiCars.
+          </p>
+        </div>
+
+        <div class="filters" aria-label="Filtros de catalogo">
+          <label>
+            Buscar
+            <input type="search" placeholder="Marca, modelo o tipo" data-search />
+          </label>
+          <label>
+            Tipo
+            <select data-type>
+              <option value="todos">Todos</option>
+              <option value="Hatchback">Hatchback</option>
+              <option value="Sedan">Sedan</option>
+              <option value="SUV">SUV</option>
+              <option value="Pickup">Pickup</option>
+            </select>
+          </label>
+          <label>
+            Precio maximo
+            <select data-price>
+              <option value="todos">Sin limite</option>
+              <option value="18000">Hasta USD 18.000</option>
+              <option value="24000">Hasta USD 24.000</option>
+              <option value="32000">Hasta USD 32.000</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="car-grid" data-car-grid></div>
+        <p class="empty-state" data-empty hidden>No encontramos autos con esos filtros.</p>
+      </section>
+
+      <section class="split-section" id="vender">
+        <div class="section-heading compact">
+          <p class="eyebrow">Compra directa</p>
+          <h2>Tambien compramos tu auto</h2>
+          <p>
+            Si queres vender, hacemos una tasacion honesta, revisamos la unidad
+            y te acompaniamos con la documentacion para que el tramite sea simple.
+          </p>
+        </div>
+
+        <div class="process-list" aria-label="Proceso de venta">
+          <article>
+            <span>01</span>
+            <h3>Envianos los datos</h3>
+            <p>Marca, modelo, anio, kilometraje, fotos y estado general.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Coordinamos revision</h3>
+            <p>Miramos mecanica, papeles y detalles para definir una oferta.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Cerramos la operacion</h3>
+            <p>Gestionamos pago, transferencia y entrega de forma ordenada.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section services-section" id="servicios">
+        <div class="section-heading">
+          <p class="eyebrow">Servicios</p>
+          <h2>Todo lo importante en un solo lugar</h2>
+        </div>
+
+        <div class="service-grid">
+          <article>
+            <h3>Financiacion</h3>
+            <p>Opciones de pago pensadas para que puedas avanzar con seguridad.</p>
+          </article>
+          <article>
+            <h3>Permutas</h3>
+            <p>Tomamos tu vehiculo como parte de pago segun estado y cotizacion.</p>
+          </article>
+          <article>
+            <h3>Gestoria</h3>
+            <p>Acompanamiento en informes, transferencia y documentacion.</p>
+          </article>
+          <article>
+            <h3>Postventa</h3>
+            <p>Seguimiento despues de la entrega para resolver dudas iniciales.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="contact-section" id="contacto">
+        <div class="section-heading compact">
+          <p class="eyebrow">Contacto</p>
+          <h2>Hablemos de tu proximo auto</h2>
+          <p>
+            Completa el formulario y se arma un mensaje para que puedas enviarlo
+            por WhatsApp. Cambiaremos el numero cuando tengas el definitivo.
+          </p>
+          <div class="contact-lines">
+            <a href="tel:+5491112345678">+54 9 11 1234-5678</a>
+            <a href="mailto:contacto@andicars.com">contacto@andicars.com</a>
+          </div>
+        </div>
+
+        <form class="contact-form" data-contact-form>
+          <label>
+            Nombre
+            <input name="nombre" type="text" placeholder="Tu nombre" required />
+          </label>
+          <label>
+            Telefono
+            <input name="telefono" type="tel" placeholder="Ej: 11 5555 5555" required />
+          </label>
+          <label>
+            Me interesa
+            <select name="interes">
+              <option>Comprar un auto</option>
+              <option>Vender mi auto</option>
+              <option>Financiacion</option>
+              <option>Permuta</option>
+            </select>
+          </label>
+          <label>
+            Mensaje
+            <textarea name="mensaje" rows="4" placeholder="Contanos que estas buscando"></textarea>
+          </label>
+          <button class="button primary full" type="submit">Enviar por WhatsApp</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>AndiCars - Compra y venta de autos seleccionados.</p>
+      <a href="#inicio">Volver arriba</a>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

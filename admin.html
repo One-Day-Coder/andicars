@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel AndiCars | Vehiculos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="admin-page">
+    <header class="admin-header">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">A</span>
+        <span>AndiCars</span>
+      </a>
+      <a class="button ghost" href="index.html">Ver pagina</a>
+    </header>
+
+    <main class="admin-shell">
+      <section class="admin-intro">
+        <p class="eyebrow">Panel interno</p>
+        <h1>Carga de vehiculos</h1>
+        <p>
+          Este panel guarda los vehiculos en este navegador. Sirve perfecto para
+          empezar a ordenar el stock; cuando publiquemos la web lo conectamos a
+          una base de datos real para usarlo desde cualquier computadora.
+        </p>
+      </section>
+
+      <section class="admin-layout">
+        <form class="vehicle-form" data-vehicle-form>
+          <input type="hidden" name="id" />
+
+          <label>
+            Marca
+            <input name="brand" type="text" placeholder="Toyota" required />
+          </label>
+
+          <label>
+            Modelo / version
+            <input name="model" type="text" placeholder="Corolla XEI" required />
+          </label>
+
+          <label>
+            Anio
+            <input name="year" type="number" min="1980" max="2030" placeholder="2022" required />
+          </label>
+
+          <label>
+            Kilometraje
+            <input name="km" type="text" placeholder="52.000 km" required />
+          </label>
+
+          <label>
+            Tipo
+            <select name="type" required>
+              <option>Hatchback</option>
+              <option>Sedan</option>
+              <option>SUV</option>
+              <option>Pickup</option>
+            </select>
+          </label>
+
+          <label>
+            Transmision
+            <select name="transmission" required>
+              <option>Manual</option>
+              <option>Automatico</option>
+            </select>
+          </label>
+
+          <label>
+            Precio en USD
+            <input name="price" type="number" min="0" step="100" placeholder="24500" required />
+          </label>
+
+          <label>
+            Color de tarjeta
+            <input name="color" type="color" value="#0f766e" />
+          </label>
+
+          <label class="wide-field">
+            Foto del vehiculo
+            <input name="image" type="url" placeholder="https://..." />
+          </label>
+
+          <label class="wide-field">
+            Descripcion
+            <textarea name="description" rows="4" placeholder="Estado, papeles, detalles y comentarios"></textarea>
+          </label>
+
+          <div class="form-actions wide-field">
+            <button class="button primary" type="submit">Guardar vehiculo</button>
+            <button class="button light" type="button" data-reset-form>Limpiar</button>
+          </div>
+        </form>
+
+        <aside class="admin-tools">
+          <h2>Datos guardados</h2>
+          <p data-counter>0 vehiculos cargados</p>
+          <div class="tool-actions">
+            <button class="button light" type="button" data-export>Exportar JSON</button>
+            <label class="button light file-button">
+              Importar JSON
+              <input type="file" accept="application/json" data-import hidden />
+            </label>
+            <button class="button danger" type="button" data-clear>Vaciar stock</button>
+          </div>
+          <p class="admin-note">
+            Consejo: exporta una copia cada tanto. Asi tenes un respaldo del
+            stock aunque limpies el navegador.
+          </p>
+        </aside>
+      </section>
+
+      <section class="admin-stock">
+        <h2>Stock cargado</h2>
+        <div class="vehicle-list" data-vehicle-list></div>
+      </section>
+    </main>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+export const vehicleCardSelect = `
+  id,
+  brand,
+  model,
+  version,
+  year,
+  mileage,
+  vehicle_type,
+  transmission,
+  fuel,
+  price_usd,
+  purchase_price_usd,
+  color,
+  description,
+  status,
+  is_published,
+  created_at,
+  main_photo_url
+`;
