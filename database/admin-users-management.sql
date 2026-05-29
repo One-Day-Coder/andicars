@@ -4,6 +4,9 @@
 alter table public.admin_users
 add column if not exists email text;
 
+alter table public.admin_users
+add column if not exists nickname text;
+
 create or replace function public.can_manage_admin_users()
 returns boolean as $$
   select coalesce(public.current_user_role() = 'owner', false);

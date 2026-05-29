@@ -10,7 +10,7 @@ type AdminGuardProps = {
 
 export function AdminGuard({ children }: AdminGuardProps) {
   const [status, setStatus] = useState<"checking" | "allowed" | "blocked">("checking");
-  const [email, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [role, setRole] = useState("admin");
 
   useEffect(() => {
@@ -27,16 +27,22 @@ export function AdminGuard({ children }: AdminGuardProps) {
         return;
       }
 
-      setEmail(data.session.user.email || "");
       const roleResult = await supabase
         .from("admin_users")
-        .select("role")
+        .select("role, nickname, email")
         .eq("user_id", data.session.user.id)
         .single();
 
       if (!roleResult.error && roleResult.data?.role) {
         setRole(roleResult.data.role);
       }
+
+      setDisplayName(
+        roleResult.data?.nickname ||
+          roleResult.data?.email ||
+          data.session.user.email ||
+          "Usuario"
+      );
 
       setStatus("allowed");
     }
@@ -72,7 +78,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
   return (
     <>
       <div className="admin-session-bar">
-        <span>{email}</span>
+        <span>{displayName}</span>
         <span className="status-badge published">{getRoleLabel(role)}</span>
         <button className="button light" type="button" onClick={signOut}>
           Cerrar sesion

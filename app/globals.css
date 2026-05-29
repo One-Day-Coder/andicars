@@ -833,7 +833,7 @@ textarea {
 
 .user-row {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(220px, 0.8fr) minmax(160px, 0.5fr) auto;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.75fr) minmax(220px, 0.9fr) minmax(150px, 0.55fr) auto;
   gap: 14px;
   align-items: center;
   border: 1px solid var(--line);
@@ -850,6 +850,13 @@ textarea {
 .user-row p {
   color: var(--muted);
   overflow-wrap: anywhere;
+}
+
+.user-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .expense-total {

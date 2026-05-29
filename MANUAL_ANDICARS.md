@@ -429,9 +429,14 @@ Tambien existe la pantalla:
 Desde ahi un Dueno puede:
 
 - ver usuarios internos
+- cargar un apodo visible
 - cargar el email visible
 - cambiar rol
 - quitar acceso al panel
+
+El apodo es el nombre que se muestra en la barra superior del panel. El email queda como referencia interna.
+
+Para evitar errores, los usuarios existentes no se editan directo: primero hay que tocar `Editar`, luego `Guardar` o `Cancelar`.
 
 Por seguridad, esta pantalla no crea el usuario de login en Supabase.
 Primero hay que crearlo en `Authentication > Users`.

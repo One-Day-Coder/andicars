@@ -17,8 +17,15 @@ export function UsersPanel() {
   const [currentRole, setCurrentRole] = useState<AdminRole | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [newUserId, setNewUserId] = useState("");
+  const [newNickname, setNewNickname] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newRole, setNewRole] = useState<AdminRole>("seller");
+  const [editingUserId, setEditingUserId] = useState("");
+  const [editDraft, setEditDraft] = useState<{ nickname: string; email: string; role: AdminRole }>({
+    nickname: "",
+    email: "",
+    role: "seller"
+  });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -83,6 +90,7 @@ export function UsersPanel() {
 
     const { error } = await supabase.from("admin_users").upsert({
       user_id: newUserId.trim(),
+      nickname: newNickname.trim() || null,
       email: newEmail.trim() || null,
       role: newRole
     });
@@ -94,6 +102,7 @@ export function UsersPanel() {
     }
 
     setNewUserId("");
+    setNewNickname("");
     setNewEmail("");
     setNewRole("seller");
     setMessage("Usuario guardado.");
@@ -101,7 +110,22 @@ export function UsersPanel() {
     await loadUsers();
   }
 
-  async function updateUser(user: AdminUser, role: AdminRole, email: string | null = user.email) {
+  function startEdit(user: AdminUser) {
+    setEditingUserId(user.user_id);
+    setEditDraft({
+      nickname: user.nickname || "",
+      email: user.email || "",
+      role: user.role
+    });
+    setMessage("");
+  }
+
+  function cancelEdit() {
+    setEditingUserId("");
+    setEditDraft({ nickname: "", email: "", role: "seller" });
+  }
+
+  async function updateUser(user: AdminUser) {
     if (!supabase) {
       setMessage("Falta configurar Supabase.");
       return;
@@ -109,7 +133,11 @@ export function UsersPanel() {
 
     const { error } = await supabase
       .from("admin_users")
-      .update({ role, email: email || null })
+      .update({
+        nickname: editDraft.nickname.trim() || null,
+        email: editDraft.email.trim() || null,
+        role: editDraft.role
+      })
       .eq("user_id", user.user_id);
 
     if (error) {
@@ -118,6 +146,7 @@ export function UsersPanel() {
     }
 
     setMessage("Usuario actualizado.");
+    cancelEdit();
     await loadUsers();
   }
 
@@ -174,7 +203,12 @@ export function UsersPanel() {
         </label>
 
         <label>
-          Email visible
+          Apodo visible
+          <input value={newNickname} onChange={(event) => setNewNickname(event.target.value)} placeholder="Ej: Victor" />
+        </label>
+
+        <label>
+          Email de referencia
           <input type="email" value={newEmail} onChange={(event) => setNewEmail(event.target.value)} />
         </label>
 
@@ -228,25 +262,35 @@ export function UsersPanel() {
             {users.map((user) => (
               <article className="user-row" key={user.user_id}>
                 <div>
-                  <h3>{user.email || "Sin email cargado"}</h3>
+                  <h3>{user.nickname || user.email || "Sin apodo cargado"}</h3>
                   <p>{user.user_id}</p>
                   {user.user_id === currentUserId ? <span className="status-badge published">Tu usuario</span> : null}
                 </div>
                 <label>
-                  Email visible
+                  Apodo visible
                   <input
-                    defaultValue={user.email || ""}
-                    onBlur={(event) => {
-                      const nextEmail = event.target.value.trim();
-                      if (nextEmail !== (user.email || "")) {
-                        updateUser(user, user.role, nextEmail || null);
-                      }
-                    }}
+                    value={editingUserId === user.user_id ? editDraft.nickname : user.nickname || ""}
+                    onChange={(event) => setEditDraft((current) => ({ ...current, nickname: event.target.value }))}
+                    disabled={editingUserId !== user.user_id}
+                    placeholder="Ej: Victor"
+                  />
+                </label>
+                <label>
+                  Email de referencia
+                  <input
+                    type="email"
+                    value={editingUserId === user.user_id ? editDraft.email : user.email || ""}
+                    onChange={(event) => setEditDraft((current) => ({ ...current, email: event.target.value }))}
+                    disabled={editingUserId !== user.user_id}
                   />
                 </label>
                 <label>
                   Rol
-                  <select value={user.role} onChange={(event) => updateUser(user, event.target.value as AdminRole)}>
+                  <select
+                    value={editingUserId === user.user_id ? editDraft.role : user.role}
+                    onChange={(event) => setEditDraft((current) => ({ ...current, role: event.target.value as AdminRole }))}
+                    disabled={editingUserId !== user.user_id}
+                  >
                     {roleOptions.map((role) => (
                       <option key={role.value} value={role.value}>
                         {getRoleLabel(role.value)}
@@ -254,9 +298,25 @@ export function UsersPanel() {
                     ))}
                   </select>
                 </label>
-                <button className="button danger" type="button" onClick={() => removeUser(user)} disabled={user.user_id === currentUserId}>
-                  Quitar acceso
-                </button>
+                <div className="user-actions">
+                  {editingUserId === user.user_id ? (
+                    <>
+                      <button className="button primary" type="button" onClick={() => updateUser(user)}>
+                        Guardar
+                      </button>
+                      <button className="button light" type="button" onClick={cancelEdit}>
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <button className="button light" type="button" onClick={() => startEdit(user)}>
+                      Editar
+                    </button>
+                  )}
+                  <button className="button danger" type="button" onClick={() => removeUser(user)} disabled={user.user_id === currentUserId}>
+                    Quitar acceso
+                  </button>
+                </div>
               </article>
             ))}
           </div>

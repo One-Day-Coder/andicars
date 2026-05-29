@@ -119,6 +119,7 @@ export type AdminRole = "owner" | "manager" | "seller" | "operator";
 
 export type AdminUser = {
   user_id: string;
+  nickname: string | null;
   email: string | null;
   role: AdminRole;
   created_at: string;
