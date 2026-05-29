@@ -72,6 +72,7 @@ export type LeadNote = {
   note: string;
   created_at: string;
   created_by: string | null;
+  author_name?: string;
 };
 
 export type VehicleExpense = {

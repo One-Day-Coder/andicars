@@ -43,12 +43,17 @@ function whatsappLink(lead: Lead) {
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
 
+function isLeadClosed(status: LeadStatus) {
+  return status === "no_responde" || status === "perdido";
+}
+
 export function LeadsPanel() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [notesDraft, setNotesDraft] = useState<Record<string, string>>({});
   const [currentRole, setCurrentRole] = useState<AdminRole | null>(null);
   const [editingNoteId, setEditingNoteId] = useState("");
   const [editingNoteText, setEditingNoteText] = useState("");
+  const [expandedLeadIds, setExpandedLeadIds] = useState<Record<string, boolean>>({});
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "todos">("todos");
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState("");
@@ -89,6 +94,7 @@ export function LeadsPanel() {
 
     const leadIds = (data || []).map((lead) => lead.id);
     let notesByLead: Record<string, LeadNote[]> = {};
+    let authorNames: Record<string, string> = {};
 
     if (leadIds.length > 0) {
       const notesResult = await supabase
@@ -97,9 +103,30 @@ export function LeadsPanel() {
         .in("lead_id", leadIds)
         .order("created_at", { ascending: false });
 
+      const notes = notesResult.data || [];
+      const authorIds = Array.from(new Set(notes.map((note) => note.created_by).filter(Boolean))) as string[];
+
+      if (authorIds.length > 0) {
+        const authorsResult = await supabase
+          .from("admin_users")
+          .select("user_id, nickname, email")
+          .in("user_id", authorIds);
+
+        if (!authorsResult.error) {
+          authorNames = (authorsResult.data || []).reduce<Record<string, string>>((names, user) => {
+            names[user.user_id] = user.nickname || user.email || "Usuario";
+            return names;
+          }, {});
+        }
+      }
+
       if (!notesResult.error) {
-        notesByLead = (notesResult.data || []).reduce<Record<string, LeadNote[]>>((grouped, note) => {
-          grouped[note.lead_id] = [...(grouped[note.lead_id] || []), note];
+        notesByLead = notes.reduce<Record<string, LeadNote[]>>((grouped, note) => {
+          const nextNote = {
+            ...note,
+            author_name: note.created_by ? authorNames[note.created_by] || "Usuario" : "Sistema"
+          };
+          grouped[note.lead_id] = [...(grouped[note.lead_id] || []), nextNote];
           return grouped;
         }, {});
       }
@@ -169,6 +196,12 @@ export function LeadsPanel() {
     }
 
     const note = (notesDraft[id] || "").trim();
+    const lead = leads.find((item) => item.id === id);
+
+    if (lead && isLeadClosed(lead.status)) {
+      setMessage("Esta consulta esta cerrada. Para agregar notas, primero toca Reactivar.");
+      return;
+    }
 
     if (!note) {
       setMessage("Escribi una nota antes de guardar.");
@@ -264,6 +297,10 @@ export function LeadsPanel() {
     setNotesDraft((current) => ({ ...current, [id]: value }));
   }
 
+  function toggleLead(id: string) {
+    setExpandedLeadIds((current) => ({ ...current, [id]: !current[id] }));
+  }
+
   useEffect(() => {
     loadLeads();
   }, []);
@@ -335,112 +372,133 @@ export function LeadsPanel() {
       ) : null}
 
       <div className="lead-list">
-        {filteredLeads.map((lead) => (
-          <article className="lead-card" key={lead.id}>
-            <div>
-              <span className="status-badge published">{statusLabel(lead.status)}</span>
-              <h3>{lead.customer_name}</h3>
-              <p>{vehicleLabel(lead)}</p>
-            </div>
-            <div className="lead-contact">
-              <a href={`tel:${lead.phone}`}>{lead.phone}</a>
-              {lead.email ? <a href={`mailto:${lead.email}`}>{lead.email}</a> : null}
-              <a href={whatsappLink(lead)} target="_blank" rel="noreferrer">
-                WhatsApp
-              </a>
-            </div>
-            {lead.message ? <p className="lead-message">{lead.message}</p> : null}
-            <div className="lead-quick-actions">
-              <button className="button light" type="button" onClick={() => closeLead(lead.id, "no_responde")}>
-                No responde
-              </button>
-              <button className="button light" type="button" onClick={() => closeLead(lead.id, "perdido")}>
-                Perdido
-              </button>
-              {["no_responde", "perdido", "descartado", "cerrado"].includes(lead.status) ? (
-                <button className="button primary" type="button" onClick={() => reactivateLead(lead.id)}>
-                  Reactivar
-                </button>
-              ) : null}
-            </div>
-            <div className="lead-notes">
-              <label>
-                Agregar nota interna
-                <textarea
-                  rows={3}
-                  value={notesDraft[lead.id] || ""}
-                  onChange={(event) => updateDraft(lead.id, event.target.value)}
-                  placeholder="Ej: Lo llame, pregunta por permuta, volver a contactar el lunes."
-                />
-              </label>
-              <button className="button light" type="button" onClick={() => addLeadNote(lead.id)}>
-                Agregar nota
-              </button>
-              {lead.internal_notes ? (
-                <div className="note-history-item">
-                  <strong>Nota anterior</strong>
-                  <p>{lead.internal_notes}</p>
+        {filteredLeads.map((lead) => {
+          const isExpanded = expandedLeadIds[lead.id] || false;
+          const closed = isLeadClosed(lead.status);
+
+          return (
+            <article className="lead-card" key={lead.id}>
+              <button className="lead-summary-button" type="button" onClick={() => toggleLead(lead.id)}>
+                <div>
+                  <span className="status-badge published">{statusLabel(lead.status)}</span>
+                  <h3>{lead.customer_name}</h3>
+                  <p>{vehicleLabel(lead)}</p>
                 </div>
-              ) : null}
-              {(lead.lead_notes || []).length > 0 ? (
-                <div className="note-history">
-                  {(lead.lead_notes || [])
-                    .slice()
-                    .sort((a: LeadNote, b: LeadNote) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                    .map((note) => (
-                      <div className="note-history-item" key={note.id}>
-                        <strong>{formatDate(note.created_at)}</strong>
-                        {editingNoteId === note.id ? (
-                          <>
-                            <textarea
-                              rows={2}
-                              value={editingNoteText}
-                              onChange={(event) => setEditingNoteText(event.target.value)}
-                            />
-                            <div className="note-actions">
-                              <button className="button primary" type="button" onClick={() => updateNote(note.id)}>
-                                Guardar
-                              </button>
-                              <button className="button light" type="button" onClick={cancelEditNote}>
-                                Cancelar
-                              </button>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <p>{note.note}</p>
-                            <div className="note-actions">
-                              <button className="button light" type="button" onClick={() => startEditNote(note)}>
-                                Editar
-                              </button>
-                              {currentRole === "owner" ? (
-                                <button className="button danger" type="button" onClick={() => deleteNote(note.id)}>
-                                  Eliminar
-                                </button>
-                              ) : null}
-                            </div>
-                          </>
-                        )}
+                <div>
+                  <strong>{lead.phone}</strong>
+                  <span>{formatDate(lead.created_at)}</span>
+                </div>
+                <span>{isExpanded ? "Ocultar" : "Ver detalle"}</span>
+              </button>
+
+              {isExpanded ? (
+                <>
+                  <div className="lead-contact">
+                    <a href={`tel:${lead.phone}`}>{lead.phone}</a>
+                    {lead.email ? <a href={`mailto:${lead.email}`}>{lead.email}</a> : null}
+                    <a href={whatsappLink(lead)} target="_blank" rel="noreferrer">
+                      WhatsApp
+                    </a>
+                  </div>
+                  {lead.message ? <p className="lead-message">{lead.message}</p> : null}
+                  <div className="lead-quick-actions">
+                    <button className="button light" type="button" onClick={() => closeLead(lead.id, "no_responde")} disabled={closed}>
+                      No responde
+                    </button>
+                    <button className="button light" type="button" onClick={() => closeLead(lead.id, "perdido")} disabled={closed}>
+                      Perdido
+                    </button>
+                    {closed ? (
+                      <button className="button primary" type="button" onClick={() => reactivateLead(lead.id)}>
+                        Reactivar
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="lead-notes">
+                    <label>
+                      Agregar nota interna
+                      <textarea
+                        rows={3}
+                        value={notesDraft[lead.id] || ""}
+                        onChange={(event) => updateDraft(lead.id, event.target.value)}
+                        placeholder={closed ? "Consulta cerrada. Reactivala para agregar notas." : "Ej: Lo llame, pregunta por permuta, volver a contactar el lunes."}
+                        disabled={closed}
+                      />
+                    </label>
+                    <button className="button light" type="button" onClick={() => addLeadNote(lead.id)} disabled={closed}>
+                      Agregar nota
+                    </button>
+                    {closed ? <p className="admin-note">Consulta cerrada: no se pueden agregar notas hasta reactivarla.</p> : null}
+                    {lead.internal_notes ? (
+                      <div className="note-history-item">
+                        <strong>Nota anterior</strong>
+                        <p>{lead.internal_notes}</p>
                       </div>
-                    ))}
-                </div>
+                    ) : null}
+                    {(lead.lead_notes || []).length > 0 ? (
+                      <div className="note-history">
+                        {(lead.lead_notes || [])
+                          .slice()
+                          .sort((a: LeadNote, b: LeadNote) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                          .map((note) => (
+                            <div className="note-history-item" key={note.id}>
+                              <strong>
+                                {formatDate(note.created_at)} - {note.author_name || "Usuario"}
+                              </strong>
+                              {editingNoteId === note.id ? (
+                                <>
+                                  <textarea
+                                    rows={2}
+                                    value={editingNoteText}
+                                    onChange={(event) => setEditingNoteText(event.target.value)}
+                                  />
+                                  <div className="note-actions">
+                                    <button className="button primary" type="button" onClick={() => updateNote(note.id)}>
+                                      Guardar
+                                    </button>
+                                    <button className="button light" type="button" onClick={cancelEditNote}>
+                                      Cancelar
+                                    </button>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <p>{note.note}</p>
+                                  <div className="note-actions">
+                                    <button className="button light" type="button" onClick={() => startEditNote(note)}>
+                                      Editar
+                                    </button>
+                                    {currentRole === "owner" ? (
+                                      <button className="button danger" type="button" onClick={() => deleteNote(note.id)}>
+                                        Eliminar
+                                      </button>
+                                    ) : null}
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="lead-footer">
+                    <span>{formatDate(lead.created_at)}</span>
+                    <label>
+                      Estado
+                      <select value={lead.status} onChange={(event) => updateLeadStatus(lead.id, event.target.value as LeadStatus, `Estado cambiado a ${statusLabel(event.target.value as LeadStatus)}.`)}>
+                        {statusOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                </>
               ) : null}
-            </div>
-            <div className="lead-footer">
-              <span>{formatDate(lead.created_at)}</span>
-              <label>
-                Estado
-                <select value={lead.status} onChange={(event) => updateLeadStatus(lead.id, event.target.value as LeadStatus, `Estado cambiado a ${statusLabel(event.target.value as LeadStatus)}.`)}>
-                  {statusOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </section>
   );

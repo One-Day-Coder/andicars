@@ -205,6 +205,10 @@ Si hubo un error en una nota, toca `Editar`, cambia el texto y luego `Guardar`. 
 
 Los botones `No responde`, `Perdido` y `Reactivar` cambian el estado y ademas agregan una nota automatica al historial para saber cuando se uso esa accion.
 
+Cada nota muestra quien la agrego. Si una consulta esta en `No responde` o `Perdido`, no se pueden agregar notas nuevas hasta tocar `Reactivar`.
+
+Cada consulta aparece cerrada como resumen. Toca `Ver detalle` para desplegar datos, notas y acciones.
+
 ## 8. Anti-spam de consultas
 
 Ruta:

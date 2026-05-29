@@ -1309,6 +1309,35 @@ pre {
   padding: 16px;
 }
 
+.lead-summary-button {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.5fr) auto;
+  gap: 14px;
+  width: 100%;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lead-summary-button div {
+  display: grid;
+  gap: 6px;
+}
+
+.lead-summary-button strong,
+.lead-summary-button span:last-child {
+  color: var(--teal-dark);
+  font-weight: 900;
+}
+
+.lead-summary-button span {
+  color: var(--muted);
+}
+
 .lead-card h3,
 .lead-card p {
   margin: 0;
@@ -1438,6 +1467,7 @@ pre {
     .sale-filters,
     .expense-row,
     .sale-row,
+    .lead-summary-button,
     .profit-row,
     .detail-shell {
     grid-template-columns: 1fr;
