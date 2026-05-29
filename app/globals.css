@@ -1300,6 +1300,50 @@ pre {
   margin-top: 18px;
 }
 
+.lead-alert-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.lead-alert-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lead-alert-card span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.lead-alert-card strong {
+  color: var(--teal-dark);
+  font-size: 2rem;
+}
+
+.lead-alert-card.overdue {
+  border-color: #fecaca;
+  background: #fff5f5;
+}
+
+.lead-alert-card.today {
+  border-color: #fed7aa;
+  background: #fff7ed;
+}
+
+.lead-alert-card.empty {
+  background: #f8fafc;
+}
+
 .lead-card {
   display: grid;
   gap: 12px;
@@ -1307,6 +1351,56 @@ pre {
   border-radius: 8px;
   background: #fbfcfd;
   padding: 16px;
+}
+
+.lead-card.followup-overdue {
+  border-color: #fecaca;
+  background: #fffafa;
+}
+
+.lead-card.followup-today {
+  border-color: #fed7aa;
+  background: #fffaf3;
+}
+
+.lead-card.followup-empty {
+  border-color: #d7dee7;
+}
+
+.lead-badges {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 8px !important;
+  align-items: center;
+}
+
+.followup-badge {
+  border-radius: 999px;
+  background: #eef2f5;
+  color: var(--muted);
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.followup-badge.overdue {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.followup-badge.today {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.followup-badge.future {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.followup-badge.priority {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 .lead-summary-button {
@@ -1491,6 +1585,7 @@ pre {
   .vehicle-row,
   .admin-photo-grid,
     .lead-filters,
+    .lead-alert-summary,
     .lead-management-grid,
     .summary-grid,
     .expenses-layout,

@@ -218,6 +218,14 @@ La prioridad sirve para ordenar a quien contactar primero. El proximo contacto s
 
 Si una consulta se marca como `Perdido`, conviene cargar el motivo: precio, compro otro, no responde, no califica, auto vendido u otro.
 
+El panel muestra alertas visuales de seguimiento:
+
+- Vencidas: fecha de contacto anterior a hoy.
+- Para hoy: fecha de contacto del dia actual.
+- Sin fecha: consultas abiertas sin proximo contacto.
+
+Las consultas se ordenan automaticamente poniendo primero las vencidas, despues las de hoy, luego las proximas y al final las que no tienen fecha.
+
 ## 8. Anti-spam de consultas
 
 Ruta:

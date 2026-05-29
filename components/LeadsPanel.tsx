@@ -70,6 +70,28 @@ function isDueTodayOrOverdue(value: string | null) {
   return Boolean(value && value <= todayDate());
 }
 
+function followUpState(lead: Lead) {
+  if (isLeadClosed(lead.status)) {
+    return { label: "Cerrada", kind: "closed", rank: 4 };
+  }
+
+  if (!lead.next_contact_at) {
+    return { label: "Sin fecha", kind: "empty", rank: 3 };
+  }
+
+  const today = todayDate();
+
+  if (lead.next_contact_at < today) {
+    return { label: "Vencida", kind: "overdue", rank: 0 };
+  }
+
+  if (lead.next_contact_at === today) {
+    return { label: "Vence hoy", kind: "today", rank: 1 };
+  }
+
+  return { label: "Proxima", kind: "future", rank: 2 };
+}
+
 export function LeadsPanel() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [notesDraft, setNotesDraft] = useState<Record<string, string>>({});
@@ -347,6 +369,11 @@ export function LeadsPanel() {
     loadLeads();
   }, []);
 
+  const visibleOpenLeads = leads.filter((lead) => !isLeadClosed(lead.status));
+  const overdueCount = visibleOpenLeads.filter((lead) => followUpState(lead).kind === "overdue").length;
+  const todayCount = visibleOpenLeads.filter((lead) => followUpState(lead).kind === "today").length;
+  const emptyFollowUpCount = visibleOpenLeads.filter((lead) => followUpState(lead).kind === "empty").length;
+
   const filteredLeads = leads.filter((lead) => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
     const matchesStatus = statusFilter === "todos" || lead.status === statusFilter;
@@ -372,6 +399,19 @@ export function LeadsPanel() {
     const matchesSearch = !normalizedSearch || searchableText.includes(normalizedSearch);
 
     return matchesStatus && matchesPriority && matchesFollowUp && matchesSearch;
+  }).sort((a, b) => {
+    const stateA = followUpState(a);
+    const stateB = followUpState(b);
+
+    if (stateA.rank !== stateB.rank) {
+      return stateA.rank - stateB.rank;
+    }
+
+    if (a.next_contact_at && b.next_contact_at && a.next_contact_at !== b.next_contact_at) {
+      return a.next_contact_at.localeCompare(b.next_contact_at);
+    }
+
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
   return (
@@ -428,6 +468,21 @@ export function LeadsPanel() {
         </label>
       </div>
 
+      <div className="lead-alert-summary">
+        <button className="lead-alert-card overdue" type="button" onClick={() => setFollowUpFilter("hoy")}>
+          <span>Vencidas</span>
+          <strong>{overdueCount}</strong>
+        </button>
+        <button className="lead-alert-card today" type="button" onClick={() => setFollowUpFilter("hoy")}>
+          <span>Para hoy</span>
+          <strong>{todayCount}</strong>
+        </button>
+        <button className="lead-alert-card empty" type="button" onClick={() => setFollowUpFilter("sin_fecha")}>
+          <span>Sin fecha</span>
+          <strong>{emptyFollowUpCount}</strong>
+        </button>
+      </div>
+
       {message ? <p className="form-message">{message}</p> : null}
       {loading ? <p className="empty-state">Cargando consultas...</p> : null}
 
@@ -443,12 +498,17 @@ export function LeadsPanel() {
         {filteredLeads.map((lead) => {
           const isExpanded = expandedLeadIds[lead.id] || false;
           const closed = isLeadClosed(lead.status);
+          const followUp = followUpState(lead);
 
           return (
-            <article className="lead-card" key={lead.id}>
+            <article className={`lead-card followup-${followUp.kind}`} key={lead.id}>
               <button className="lead-summary-button" type="button" onClick={() => toggleLead(lead.id)}>
                 <div>
-                  <span className="status-badge published">{statusLabel(lead.status)}</span>
+                  <div className="lead-badges">
+                    <span className="status-badge published">{statusLabel(lead.status)}</span>
+                    <span className={`followup-badge ${followUp.kind}`}>{followUp.label}</span>
+                    {lead.priority === "alta" ? <span className="followup-badge priority">Alta prioridad</span> : null}
+                  </div>
                   <h3>{lead.customer_name}</h3>
                   <p>{vehicleLabel(lead)}</p>
                 </div>
