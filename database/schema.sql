@@ -106,6 +106,9 @@ create table if not exists public.lead_notes (
   lead_id uuid not null references public.leads(id) on delete cascade,
   note text not null,
   created_by uuid references auth.users(id) on delete set null,
+  updated_by uuid references auth.users(id) on delete set null,
+  updated_at timestamptz,
+  is_system boolean not null default false,
   created_at timestamptz not null default now()
 );
 

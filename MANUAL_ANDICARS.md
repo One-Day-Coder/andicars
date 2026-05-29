@@ -203,9 +203,11 @@ Las notas internas no se muestran al cliente. Para guardar una nota, escribila e
 
 Si hubo un error en una nota, toca `Editar`, cambia el texto y luego `Guardar`. El boton `Eliminar` solo lo ve el rol Dueno.
 
-Los botones `No responde`, `Perdido` y `Reactivar` cambian el estado y ademas agregan una nota automatica al historial para saber cuando se uso esa accion.
+Los botones `No responde`, `Perdido` y `Reactivar` cambian el estado y ademas agregan una nota automatica al historial para saber cuando se uso esa accion. Esas notas automaticas no se editan.
 
 Cada nota muestra quien la agrego. Si una consulta esta en `No responde` o `Perdido`, no se pueden agregar notas nuevas hasta tocar `Reactivar`.
+
+Si una nota manual se edita, queda visible quien la edito y cuando.
 
 Cada consulta aparece cerrada como resumen. Toca `Ver detalle` para desplegar datos, notas y acciones.
 

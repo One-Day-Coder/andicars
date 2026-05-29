@@ -1353,10 +1353,33 @@ pre {
 }
 
 .lead-contact {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  display: grid;
+  gap: 8px;
+  width: fit-content;
   font-weight: 800;
+}
+
+.lead-phone-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.whatsapp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #16a34a;
+  color: var(--white);
+  text-decoration: none;
+}
+
+.whatsapp-button:hover {
+  background: #15803d;
 }
 
 .lead-message {
@@ -1409,6 +1432,12 @@ pre {
 .note-history-item strong {
   font-size: 0.8rem;
   color: var(--muted);
+}
+
+.note-edit-meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .note-history-item p {

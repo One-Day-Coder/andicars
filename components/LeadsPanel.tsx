@@ -99,12 +99,14 @@ export function LeadsPanel() {
     if (leadIds.length > 0) {
       const notesResult = await supabase
         .from("lead_notes")
-        .select("id, lead_id, note, created_by, created_at")
+        .select("id, lead_id, note, created_by, created_at, updated_by, updated_at, is_system")
         .in("lead_id", leadIds)
         .order("created_at", { ascending: false });
 
       const notes = notesResult.data || [];
-      const authorIds = Array.from(new Set(notes.map((note) => note.created_by).filter(Boolean))) as string[];
+      const authorIds = Array.from(
+        new Set(notes.flatMap((note) => [note.created_by, note.updated_by]).filter(Boolean))
+      ) as string[];
 
       if (authorIds.length > 0) {
         const authorsResult = await supabase
@@ -124,7 +126,8 @@ export function LeadsPanel() {
         notesByLead = notes.reduce<Record<string, LeadNote[]>>((grouped, note) => {
           const nextNote = {
             ...note,
-            author_name: note.created_by ? authorNames[note.created_by] || "Usuario" : "Sistema"
+            author_name: note.created_by ? authorNames[note.created_by] || "Usuario" : "Sistema",
+            editor_name: note.updated_by ? authorNames[note.updated_by] || "Usuario" : undefined
           };
           grouped[note.lead_id] = [...(grouped[note.lead_id] || []), nextNote];
           return grouped;
@@ -156,7 +159,8 @@ export function LeadsPanel() {
     const { error } = await supabase.from("lead_notes").insert({
       lead_id: id,
       note,
-      created_by: sessionData.session?.user.id || null
+      created_by: sessionData.session?.user.id || null,
+      is_system: true
     });
 
     if (error) {
@@ -249,7 +253,15 @@ export function LeadsPanel() {
       return;
     }
 
-    const { error } = await supabase.from("lead_notes").update({ note }).eq("id", noteId);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const { error } = await supabase
+      .from("lead_notes")
+      .update({
+        note,
+        updated_by: sessionData.session?.user.id || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", noteId);
 
     if (error) {
       setMessage(`No se pudo editar la nota: ${error.message}`);
@@ -394,11 +406,13 @@ export function LeadsPanel() {
               {isExpanded ? (
                 <>
                   <div className="lead-contact">
-                    <a href={`tel:${lead.phone}`}>{lead.phone}</a>
+                    <div className="lead-phone-row">
+                      <a href={`tel:${lead.phone}`}>{lead.phone}</a>
+                      <a className="whatsapp-button" href={whatsappLink(lead)} target="_blank" rel="noreferrer">
+                        WhatsApp
+                      </a>
+                    </div>
                     {lead.email ? <a href={`mailto:${lead.email}`}>{lead.email}</a> : null}
-                    <a href={whatsappLink(lead)} target="_blank" rel="noreferrer">
-                      WhatsApp
-                    </a>
                   </div>
                   {lead.message ? <p className="lead-message">{lead.message}</p> : null}
                   <div className="lead-quick-actions">
@@ -444,7 +458,13 @@ export function LeadsPanel() {
                             <div className="note-history-item" key={note.id}>
                               <strong>
                                 {formatDate(note.created_at)} - {note.author_name || "Usuario"}
+                                {note.is_system ? " - Sistema" : ""}
                               </strong>
+                              {note.updated_at ? (
+                                <span className="note-edit-meta">
+                                  Editada {formatDate(note.updated_at)} por {note.editor_name || "Usuario"}
+                                </span>
+                              ) : null}
                               {editingNoteId === note.id ? (
                                 <>
                                   <textarea
@@ -465,9 +485,11 @@ export function LeadsPanel() {
                                 <>
                                   <p>{note.note}</p>
                                   <div className="note-actions">
-                                    <button className="button light" type="button" onClick={() => startEditNote(note)}>
-                                      Editar
-                                    </button>
+                                    {!note.is_system ? (
+                                      <button className="button light" type="button" onClick={() => startEditNote(note)}>
+                                        Editar
+                                      </button>
+                                    ) : null}
                                     {currentRole === "owner" ? (
                                       <button className="button danger" type="button" onClick={() => deleteNote(note.id)}>
                                         Eliminar

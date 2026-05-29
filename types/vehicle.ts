@@ -72,7 +72,11 @@ export type LeadNote = {
   note: string;
   created_at: string;
   created_by: string | null;
+  updated_at: string | null;
+  updated_by: string | null;
+  is_system: boolean;
   author_name?: string;
+  editor_name?: string;
 };
 
 export type VehicleExpense = {
