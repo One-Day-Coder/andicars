@@ -541,6 +541,44 @@ textarea {
   grid-column: 1 / -1;
 }
 
+.admin-shell {
+  gap: 22px;
+}
+
+.admin-shell .admin-intro {
+  margin-bottom: 16px;
+}
+
+.admin-shell .button {
+  min-height: 38px;
+  padding: 8px 13px;
+}
+
+.admin-shell .admin-tools,
+.admin-shell .admin-stock,
+.admin-shell .summary-section,
+.admin-shell .service-grid article {
+  padding: 18px;
+}
+
+.admin-shell .admin-tools h2,
+.admin-shell .summary-section h2,
+.admin-shell .admin-stock h2,
+.admin-shell .service-grid h2 {
+  font-size: 1.15rem;
+}
+
+.admin-shell .vehicle-form {
+  padding: 18px;
+}
+
+.admin-shell input,
+.admin-shell select,
+.admin-shell textarea {
+  min-height: 40px;
+  padding: 9px 11px;
+}
+
 .vehicle-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
