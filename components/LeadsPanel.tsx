@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import type { Lead, LeadNote, LeadStatus } from "@/types/vehicle";
+import type { AdminRole, Lead, LeadNote, LeadStatus } from "@/types/vehicle";
 
 const statusOptions: Array<{ value: LeadStatus; label: string }> = [
   { value: "nuevo", label: "Nuevo" },
@@ -46,6 +46,9 @@ function whatsappLink(lead: Lead) {
 export function LeadsPanel() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [notesDraft, setNotesDraft] = useState<Record<string, string>>({});
+  const [currentRole, setCurrentRole] = useState<AdminRole | null>(null);
+  const [editingNoteId, setEditingNoteId] = useState("");
+  const [editingNoteText, setEditingNoteText] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "todos">("todos");
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState("");
@@ -56,6 +59,21 @@ export function LeadsPanel() {
       setMessage("Falta configurar Supabase.");
       setLoading(false);
       return;
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user.id;
+
+    if (userId) {
+      const roleResult = await supabase
+        .from("admin_users")
+        .select("role")
+        .eq("user_id", userId)
+        .single();
+
+      if (!roleResult.error && roleResult.data?.role) {
+        setCurrentRole(roleResult.data.role as AdminRole);
+      }
     }
 
     const { data, error } = await supabase
@@ -101,7 +119,28 @@ export function LeadsPanel() {
     setLoading(false);
   }
 
-  async function updateLeadStatus(id: string, status: LeadStatus) {
+  async function addSystemNote(id: string, note: string) {
+    if (!supabase) {
+      setMessage("Falta configurar Supabase.");
+      return false;
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const { error } = await supabase.from("lead_notes").insert({
+      lead_id: id,
+      note,
+      created_by: sessionData.session?.user.id || null
+    });
+
+    if (error) {
+      setMessage(`No se pudo guardar el historial: ${error.message}`);
+      return false;
+    }
+
+    return true;
+  }
+
+  async function updateLeadStatus(id: string, status: LeadStatus, historyNote?: string) {
     if (!supabase) {
       setMessage("Falta configurar Supabase.");
       return;
@@ -114,8 +153,13 @@ export function LeadsPanel() {
       return;
     }
 
+    if (historyNote) {
+      await addSystemNote(id, historyNote);
+    }
+
     setLeads((current) => current.map((lead) => (lead.id === id ? { ...lead, status } : lead)));
     setMessage("Estado actualizado.");
+    await loadLeads();
   }
 
   async function addLeadNote(id: string) {
@@ -146,6 +190,74 @@ export function LeadsPanel() {
     setNotesDraft((current) => ({ ...current, [id]: "" }));
     setMessage("Nota agregada.");
     await loadLeads();
+  }
+
+  function startEditNote(note: LeadNote) {
+    setEditingNoteId(note.id);
+    setEditingNoteText(note.note);
+    setMessage("");
+  }
+
+  function cancelEditNote() {
+    setEditingNoteId("");
+    setEditingNoteText("");
+  }
+
+  async function updateNote(noteId: string) {
+    if (!supabase) {
+      setMessage("Falta configurar Supabase.");
+      return;
+    }
+
+    const note = editingNoteText.trim();
+
+    if (!note) {
+      setMessage("La nota no puede quedar vacia.");
+      return;
+    }
+
+    const { error } = await supabase.from("lead_notes").update({ note }).eq("id", noteId);
+
+    if (error) {
+      setMessage(`No se pudo editar la nota: ${error.message}`);
+      return;
+    }
+
+    cancelEditNote();
+    setMessage("Nota actualizada.");
+    await loadLeads();
+  }
+
+  async function deleteNote(noteId: string) {
+    if (!supabase) {
+      setMessage("Falta configurar Supabase.");
+      return;
+    }
+
+    const confirmed = window.confirm("Eliminar esta nota del historial?");
+
+    if (!confirmed) {
+      return;
+    }
+
+    const { error } = await supabase.from("lead_notes").delete().eq("id", noteId);
+
+    if (error) {
+      setMessage(`No se pudo eliminar la nota: ${error.message}`);
+      return;
+    }
+
+    setMessage("Nota eliminada.");
+    await loadLeads();
+  }
+
+  async function closeLead(id: string, status: Extract<LeadStatus, "no_responde" | "perdido">) {
+    const reason = status === "no_responde" ? "Marcado como No responde." : "Marcado como Perdido.";
+    await updateLeadStatus(id, status, reason);
+  }
+
+  async function reactivateLead(id: string) {
+    await updateLeadStatus(id, "contactado", "Consulta reactivada para seguimiento.");
   }
 
   function updateDraft(id: string, value: string) {
@@ -238,6 +350,19 @@ export function LeadsPanel() {
               </a>
             </div>
             {lead.message ? <p className="lead-message">{lead.message}</p> : null}
+            <div className="lead-quick-actions">
+              <button className="button light" type="button" onClick={() => closeLead(lead.id, "no_responde")}>
+                No responde
+              </button>
+              <button className="button light" type="button" onClick={() => closeLead(lead.id, "perdido")}>
+                Perdido
+              </button>
+              {["no_responde", "perdido", "descartado", "cerrado"].includes(lead.status) ? (
+                <button className="button primary" type="button" onClick={() => reactivateLead(lead.id)}>
+                  Reactivar
+                </button>
+              ) : null}
+            </div>
             <div className="lead-notes">
               <label>
                 Agregar nota interna
@@ -265,7 +390,37 @@ export function LeadsPanel() {
                     .map((note) => (
                       <div className="note-history-item" key={note.id}>
                         <strong>{formatDate(note.created_at)}</strong>
-                        <p>{note.note}</p>
+                        {editingNoteId === note.id ? (
+                          <>
+                            <textarea
+                              rows={2}
+                              value={editingNoteText}
+                              onChange={(event) => setEditingNoteText(event.target.value)}
+                            />
+                            <div className="note-actions">
+                              <button className="button primary" type="button" onClick={() => updateNote(note.id)}>
+                                Guardar
+                              </button>
+                              <button className="button light" type="button" onClick={cancelEditNote}>
+                                Cancelar
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <p>{note.note}</p>
+                            <div className="note-actions">
+                              <button className="button light" type="button" onClick={() => startEditNote(note)}>
+                                Editar
+                              </button>
+                              {currentRole === "owner" ? (
+                                <button className="button danger" type="button" onClick={() => deleteNote(note.id)}>
+                                  Eliminar
+                                </button>
+                              ) : null}
+                            </div>
+                          </>
+                        )}
                       </div>
                     ))}
                 </div>
@@ -275,7 +430,7 @@ export function LeadsPanel() {
               <span>{formatDate(lead.created_at)}</span>
               <label>
                 Estado
-                <select value={lead.status} onChange={(event) => updateLeadStatus(lead.id, event.target.value as LeadStatus)}>
+                <select value={lead.status} onChange={(event) => updateLeadStatus(lead.id, event.target.value as LeadStatus, `Estado cambiado a ${statusLabel(event.target.value as LeadStatus)}.`)}>
                   {statusOptions.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}

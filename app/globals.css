@@ -1335,6 +1335,20 @@ pre {
   padding-left: 12px;
 }
 
+.lead-quick-actions,
+.note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lead-quick-actions .button,
+.note-actions .button {
+  width: fit-content;
+  min-height: 38px;
+  padding: 8px 12px;
+}
+
 .lead-notes {
   display: grid;
   gap: 10px;

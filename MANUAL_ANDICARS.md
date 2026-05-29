@@ -184,6 +184,8 @@ En el panel podes:
 - agregar historial de notas internas
 - filtrar y buscar
 - abrir WhatsApp directo al cliente
+- cerrar rapido una consulta como No responde o Perdido
+- reactivar una consulta cerrada
 
 Estados de consultas:
 
@@ -198,6 +200,10 @@ Estados de consultas:
 - Descartado
 
 Las notas internas no se muestran al cliente. Para guardar una nota, escribila en `Agregar nota interna` y toca `Agregar nota`. Las notas quedan como historial con fecha, asi no se pisa informacion anterior.
+
+Si hubo un error en una nota, toca `Editar`, cambia el texto y luego `Guardar`. El boton `Eliminar` solo lo ve el rol Dueno.
+
+Los botones `No responde`, `Perdido` y `Reactivar` cambian el estado y ademas agregan una nota automatica al historial para saber cuando se uso esa accion.
 
 ## 8. Anti-spam de consultas
 
