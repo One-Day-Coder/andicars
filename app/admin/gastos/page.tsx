@@ -1,5 +1,6 @@
 import { AdminGuard } from "@/components/AdminGuard";
 import { ExpensesPanel } from "@/components/ExpensesPanel";
+import { RoleGuard } from "@/components/RoleGuard";
 import { SiteHeader } from "@/components/SiteHeader";
 
 export default function AdminExpensesPage() {
@@ -17,7 +18,9 @@ export default function AdminExpensesPage() {
             pensado para roles de dueño o encargado.
           </p>
           </section>
-          <ExpensesPanel />
+          <RoleGuard module="expenses">
+            <ExpensesPanel />
+          </RoleGuard>
         </main>
       </AdminGuard>
     </>

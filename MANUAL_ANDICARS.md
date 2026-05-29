@@ -75,7 +75,7 @@ Agrega gastos por vehiculo.
 database/user-roles.sql
 ```
 
-Agrega roles internos: owner, manager, seller y operator.
+Agrega roles internos. En la base se guardan como `owner`, `manager`, `seller` y `operator`, pero en el panel se ven en espanol.
 
 ```text
 database/sales.sql
@@ -93,7 +93,7 @@ Agrega configuracion del panel: WhatsApp, email, zona y anti-spam.
 database/admin-users-management.sql
 ```
 
-Permite que un usuario `owner` administre usuarios internos desde el panel.
+Permite que un usuario Dueno administre usuarios internos desde el panel.
 
 ## 4. Vehiculos
 
@@ -397,12 +397,14 @@ Para que un usuario pueda entrar al panel, su UID debe estar en:
 public.admin_users
 ```
 
-Roles:
+Roles visibles en el panel:
 
-- `owner`: dueno, ve todo.
-- `manager`: encargado, puede ver finanzas.
-- `seller`: vendedor, ventas y consultas.
-- `operator`: carga operativa.
+- Dueno: ve todo y administra usuarios/configuracion.
+- Encargado: vehiculos, consultas, gastos, ventas y reportes.
+- Vendedor: vehiculos, consultas y ventas.
+- Operador: vehiculos y consultas.
+
+Nota tecnica: Supabase guarda esos roles como `owner`, `manager`, `seller` y `operator`. No pasa nada; es normal. La web los muestra en espanol.
 
 Por ahora, si queres agregar otro admin:
 
@@ -424,7 +426,7 @@ Tambien existe la pantalla:
 /admin/usuarios
 ```
 
-Desde ahi un `owner` puede:
+Desde ahi un Dueno puede:
 
 - ver usuarios internos
 - cargar el email visible

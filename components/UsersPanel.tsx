@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getRoleLabel } from "@/lib/admin-permissions";
 import { supabase } from "@/lib/supabase/client";
 import type { AdminRole, AdminUser } from "@/types/vehicle";
 
 const roleOptions: Array<{ value: AdminRole; label: string; description: string }> = [
-  { value: "owner", label: "Owner", description: "Duenio. Acceso completo." },
-  { value: "manager", label: "Manager", description: "Encargado. Puede ver finanzas." },
-  { value: "seller", label: "Seller", description: "Vendedor. Ventas y consultas." },
-  { value: "operator", label: "Operator", description: "Carga operativa." }
+  { value: "owner", label: "Dueno", description: "Acceso completo." },
+  { value: "manager", label: "Encargado", description: "Puede ver finanzas." },
+  { value: "seller", label: "Vendedor", description: "Ventas y consultas." },
+  { value: "operator", label: "Operador", description: "Carga operativa." }
 ];
 
 export function UsersPanel() {
@@ -47,7 +48,7 @@ export function UsersPanel() {
     setCurrentRole(role || null);
 
     if (role !== "owner") {
-      setMessage("Solo un usuario owner puede administrar usuarios.");
+      setMessage("Solo un usuario Dueno puede administrar usuarios.");
       return;
     }
 
@@ -152,7 +153,7 @@ export function UsersPanel() {
     return (
       <section className="admin-stock">
         <h2>Acceso restringido</h2>
-        <p className="admin-note">Solo un usuario owner puede administrar usuarios internos.</p>
+        <p className="admin-note">Solo un usuario Dueno puede administrar usuarios internos.</p>
       </section>
     );
   }
@@ -248,7 +249,7 @@ export function UsersPanel() {
                   <select value={user.role} onChange={(event) => updateUser(user, event.target.value as AdminRole)}>
                     {roleOptions.map((role) => (
                       <option key={role.value} value={role.value}>
-                        {role.label}
+                        {getRoleLabel(role.value)}
                       </option>
                     ))}
                   </select>

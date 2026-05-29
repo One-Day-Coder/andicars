@@ -152,6 +152,11 @@ returns boolean as $$
   select coalesce(public.current_user_role() = 'owner', false);
 $$ language sql stable security definer;
 
+create or replace function public.can_manage_app_settings()
+returns boolean as $$
+  select coalesce(public.current_user_role() = 'owner', false);
+$$ language sql stable security definer;
+
 alter table public.admin_users enable row level security;
 alter table public.vehicles enable row level security;
 alter table public.vehicle_photos enable row level security;
@@ -232,11 +237,12 @@ to anon, authenticated
 using (true);
 
 drop policy if exists "Admins can manage app settings" on public.app_settings;
-create policy "Admins can manage app settings"
+drop policy if exists "Owners can manage app settings" on public.app_settings;
+create policy "Owners can manage app settings"
 on public.app_settings for all
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using (public.can_manage_app_settings())
+with check (public.can_manage_app_settings());
 
 drop policy if exists "Anyone can create leads" on public.leads;
 create policy "Anyone can create leads"

@@ -1,5 +1,6 @@
 import { AdminGuard } from "@/components/AdminGuard";
 import { LeadsPanel } from "@/components/LeadsPanel";
+import { RoleGuard } from "@/components/RoleGuard";
 import { SiteHeader } from "@/components/SiteHeader";
 
 export default function AdminLeadsPage() {
@@ -17,7 +18,9 @@ export default function AdminLeadsPage() {
               notas, llamadas y recordatorios.
             </p>
           </section>
-          <LeadsPanel />
+          <RoleGuard module="leads">
+            <LeadsPanel />
+          </RoleGuard>
         </main>
       </AdminGuard>
     </>

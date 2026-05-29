@@ -1,4 +1,5 @@
 import { AdminGuard } from "@/components/AdminGuard";
+import { RoleGuard } from "@/components/RoleGuard";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -16,7 +17,9 @@ export default function AdminSettingsPage() {
               proteccion anti-spam para consultas.
             </p>
           </section>
-          <SettingsPanel />
+          <RoleGuard module="settings">
+            <SettingsPanel />
+          </RoleGuard>
         </main>
       </AdminGuard>
     </>

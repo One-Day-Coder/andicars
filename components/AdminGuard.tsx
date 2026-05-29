@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getRoleLabel } from "@/lib/admin-permissions";
 import { supabase } from "@/lib/supabase/client";
 
 type AdminGuardProps = {
@@ -72,7 +73,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
     <>
       <div className="admin-session-bar">
         <span>{email}</span>
-        <span className="status-badge published">{role}</span>
+        <span className="status-badge published">{getRoleLabel(role)}</span>
         <button className="button light" type="button" onClick={signOut}>
           Cerrar sesion
         </button>

@@ -1,5 +1,6 @@
 import { AdminGuard } from "@/components/AdminGuard";
 import { ReportsPanel } from "@/components/ReportsPanel";
+import { RoleGuard } from "@/components/RoleGuard";
 import { SiteHeader } from "@/components/SiteHeader";
 
 export default function AdminReportsPage() {
@@ -16,7 +17,9 @@ export default function AdminReportsPage() {
               rentabilidad en una sola pantalla.
             </p>
           </section>
-          <ReportsPanel />
+          <RoleGuard module="reports">
+            <ReportsPanel />
+          </RoleGuard>
         </main>
       </AdminGuard>
     </>

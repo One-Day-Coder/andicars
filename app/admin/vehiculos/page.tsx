@@ -1,4 +1,5 @@
 import { AdminGuard } from "@/components/AdminGuard";
+import { RoleGuard } from "@/components/RoleGuard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { VehicleForm } from "@/components/VehicleForm";
 
@@ -17,7 +18,9 @@ export default function AdminVehiclesPage() {
               en el catalogo publico.
             </p>
           </section>
-          <VehicleForm />
+          <RoleGuard module="vehicles">
+            <VehicleForm />
+          </RoleGuard>
         </main>
       </AdminGuard>
     </>

@@ -1,4 +1,5 @@
 import { AdminGuard } from "@/components/AdminGuard";
+import { RoleGuard } from "@/components/RoleGuard";
 import { SalesPanel } from "@/components/SalesPanel";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -16,7 +17,9 @@ export default function AdminSalesPage() {
               operacion, tambien se actualiza el estado del vehiculo.
             </p>
           </section>
-          <SalesPanel />
+          <RoleGuard module="sales">
+            <SalesPanel />
+          </RoleGuard>
         </main>
       </AdminGuard>
     </>
