@@ -1331,17 +1331,18 @@ pre {
 }
 
 .lead-alert-card.overdue {
-  border-color: #fecaca;
-  background: #fff5f5;
+  border-color: #dc2626;
+  background: #fee2e2;
 }
 
 .lead-alert-card.today {
-  border-color: #fed7aa;
-  background: #fff7ed;
+  border-color: #f97316;
+  background: #ffedd5;
 }
 
 .lead-alert-card.empty {
-  background: #f8fafc;
+  border-color: #94a3b8;
+  background: #e2e8f0;
 }
 
 .lead-card {
@@ -1354,17 +1355,21 @@ pre {
 }
 
 .lead-card.followup-overdue {
-  border-color: #fecaca;
-  background: #fffafa;
+  border-color: #dc2626;
+  background: #fee2e2;
+  box-shadow: inset 5px 0 0 #dc2626;
 }
 
 .lead-card.followup-today {
-  border-color: #fed7aa;
-  background: #fffaf3;
+  border-color: #f97316;
+  background: #ffedd5;
+  box-shadow: inset 5px 0 0 #f97316;
 }
 
 .lead-card.followup-empty {
-  border-color: #d7dee7;
+  border-color: #94a3b8;
+  background: #f1f5f9;
+  box-shadow: inset 5px 0 0 #94a3b8;
 }
 
 .lead-badges {
@@ -1384,23 +1389,33 @@ pre {
 }
 
 .followup-badge.overdue {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #dc2626;
+  color: var(--white);
 }
 
 .followup-badge.today {
-  background: #ffedd5;
-  color: #9a3412;
+  background: #f97316;
+  color: var(--white);
 }
 
 .followup-badge.future {
-  background: #e0f2fe;
-  color: #075985;
+  background: #0ea5e9;
+  color: var(--white);
+}
+
+.followup-badge.empty {
+  background: #64748b;
+  color: var(--white);
+}
+
+.followup-badge.closed {
+  background: #475569;
+  color: var(--white);
 }
 
 .followup-badge.priority {
-  background: #fef3c7;
-  color: #92400e;
+  background: #ca8a04;
+  color: var(--white);
 }
 
 .lead-summary-button {
