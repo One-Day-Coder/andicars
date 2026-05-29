@@ -2,15 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import type { Lead, LeadStatus } from "@/types/vehicle";
+import type { Lead, LeadNote, LeadStatus } from "@/types/vehicle";
 
 const statusOptions: Array<{ value: LeadStatus; label: string }> = [
   { value: "nuevo", label: "Nuevo" },
   { value: "contactado", label: "Contactado" },
   { value: "interesado", label: "Interesado" },
+  { value: "no_responde", label: "No responde" },
   { value: "negociando", label: "Negociando" },
   { value: "reservo", label: "Reservo" },
   { value: "compro", label: "Compro" },
+  { value: "cerrado", label: "Cerrado" },
+  { value: "descartado", label: "Descartado" },
   { value: "perdido", label: "Perdido" }
 ];
 
@@ -27,6 +30,17 @@ function vehicleLabel(lead: Lead) {
   }
 
   return `${lead.vehicles.brand} ${lead.vehicles.model}${lead.vehicles.version ? ` ${lead.vehicles.version}` : ""} ${lead.vehicles.year}`;
+}
+
+function statusLabel(status: LeadStatus) {
+  return statusOptions.find((option) => option.value === status)?.label || status;
+}
+
+function whatsappLink(lead: Lead) {
+  const phone = lead.phone.replace(/\D/g, "");
+  const message = `Hola ${lead.customer_name}, soy de AndiCars. Te escribo por tu consulta sobre ${vehicleLabel(lead)}.`;
+
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 }
 
 export function LeadsPanel() {
@@ -55,7 +69,28 @@ export function LeadsPanel() {
       return;
     }
 
-    const nextLeads = data || [];
+    const leadIds = (data || []).map((lead) => lead.id);
+    let notesByLead: Record<string, LeadNote[]> = {};
+
+    if (leadIds.length > 0) {
+      const notesResult = await supabase
+        .from("lead_notes")
+        .select("id, lead_id, note, created_by, created_at")
+        .in("lead_id", leadIds)
+        .order("created_at", { ascending: false });
+
+      if (!notesResult.error) {
+        notesByLead = (notesResult.data || []).reduce<Record<string, LeadNote[]>>((grouped, note) => {
+          grouped[note.lead_id] = [...(grouped[note.lead_id] || []), note];
+          return grouped;
+        }, {});
+      }
+    }
+
+    const nextLeads = (data || []).map((lead) => ({
+      ...lead,
+      lead_notes: notesByLead[lead.id] || []
+    }));
     setLeads(nextLeads);
     setNotesDraft(
       nextLeads.reduce<Record<string, string>>((draft, lead) => {
@@ -83,22 +118,34 @@ export function LeadsPanel() {
     setMessage("Estado actualizado.");
   }
 
-  async function updateLeadNotes(id: string) {
+  async function addLeadNote(id: string) {
     if (!supabase) {
       setMessage("Falta configurar Supabase.");
       return;
     }
 
-    const internal_notes = notesDraft[id] || "";
-    const { error } = await supabase.from("leads").update({ internal_notes }).eq("id", id);
+    const note = (notesDraft[id] || "").trim();
+
+    if (!note) {
+      setMessage("Escribi una nota antes de guardar.");
+      return;
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const { error } = await supabase.from("lead_notes").insert({
+      lead_id: id,
+      note,
+      created_by: sessionData.session?.user.id || null
+    });
 
     if (error) {
       setMessage(`No se pudo guardar la nota: ${error.message}`);
       return;
     }
 
-    setLeads((current) => current.map((lead) => (lead.id === id ? { ...lead, internal_notes } : lead)));
-    setMessage("Nota guardada.");
+    setNotesDraft((current) => ({ ...current, [id]: "" }));
+    setMessage("Nota agregada.");
+    await loadLeads();
   }
 
   function updateDraft(id: string, value: string) {
@@ -118,6 +165,7 @@ export function LeadsPanel() {
       lead.email,
       lead.message,
       lead.internal_notes,
+      ...(lead.lead_notes || []).map((note) => note.note),
       vehicleLabel(lead)
     ]
       .filter(Boolean)
@@ -178,18 +226,21 @@ export function LeadsPanel() {
         {filteredLeads.map((lead) => (
           <article className="lead-card" key={lead.id}>
             <div>
-              <span className="status-badge published">{lead.status}</span>
+              <span className="status-badge published">{statusLabel(lead.status)}</span>
               <h3>{lead.customer_name}</h3>
               <p>{vehicleLabel(lead)}</p>
             </div>
             <div className="lead-contact">
               <a href={`tel:${lead.phone}`}>{lead.phone}</a>
               {lead.email ? <a href={`mailto:${lead.email}`}>{lead.email}</a> : null}
+              <a href={whatsappLink(lead)} target="_blank" rel="noreferrer">
+                WhatsApp
+              </a>
             </div>
             {lead.message ? <p className="lead-message">{lead.message}</p> : null}
             <div className="lead-notes">
               <label>
-                Notas internas
+                Agregar nota interna
                 <textarea
                   rows={3}
                   value={notesDraft[lead.id] || ""}
@@ -197,9 +248,28 @@ export function LeadsPanel() {
                   placeholder="Ej: Lo llame, pregunta por permuta, volver a contactar el lunes."
                 />
               </label>
-              <button className="button light" type="button" onClick={() => updateLeadNotes(lead.id)}>
-                Guardar nota
+              <button className="button light" type="button" onClick={() => addLeadNote(lead.id)}>
+                Agregar nota
               </button>
+              {lead.internal_notes ? (
+                <div className="note-history-item">
+                  <strong>Nota anterior</strong>
+                  <p>{lead.internal_notes}</p>
+                </div>
+              ) : null}
+              {(lead.lead_notes || []).length > 0 ? (
+                <div className="note-history">
+                  {(lead.lead_notes || [])
+                    .slice()
+                    .sort((a: LeadNote, b: LeadNote) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                    .map((note) => (
+                      <div className="note-history-item" key={note.id}>
+                        <strong>{formatDate(note.created_at)}</strong>
+                        <p>{note.note}</p>
+                      </div>
+                    ))}
+                </div>
+              ) : null}
             </div>
             <div className="lead-footer">
               <span>{formatDate(lead.created_at)}</span>

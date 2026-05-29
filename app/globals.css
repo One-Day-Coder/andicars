@@ -1349,6 +1349,29 @@ pre {
   padding: 8px 12px;
 }
 
+.note-history {
+  display: grid;
+  gap: 8px;
+}
+
+.note-history-item {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  padding: 10px;
+}
+
+.note-history-item strong {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.note-history-item p {
+  color: var(--ink);
+}
+
 .lead-footer {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);

@@ -38,9 +38,12 @@ export type LeadStatus =
   | "nuevo"
   | "contactado"
   | "interesado"
+  | "no_responde"
   | "negociando"
   | "reservo"
   | "compro"
+  | "descartado"
+  | "cerrado"
   | "perdido";
 
 export type Lead = {
@@ -60,6 +63,15 @@ export type Lead = {
     version: string | null;
     year: number;
   } | null;
+  lead_notes?: LeadNote[];
+};
+
+export type LeadNote = {
+  id: string;
+  lead_id: string;
+  note: string;
+  created_at: string;
+  created_by: string | null;
 };
 
 export type VehicleExpense = {

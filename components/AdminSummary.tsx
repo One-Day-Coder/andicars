@@ -73,7 +73,7 @@ export function AdminSummary() {
       reservedVehicles: vehicles.filter((vehicle) => vehicle.status === "reservado").length,
       totalLeads: leads.length,
       newLeads: leads.filter((lead) => lead.status === "nuevo").length,
-      activeLeads: leads.filter((lead) => ["contactado", "interesado", "negociando", "reservo"].includes(lead.status)).length
+      activeLeads: leads.filter((lead) => ["contactado", "interesado", "no_responde", "negociando", "reservo"].includes(lead.status)).length
     });
     setMessage("");
     setLoading(false);

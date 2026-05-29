@@ -181,20 +181,23 @@ En el panel podes:
 - ver datos del cliente
 - ver por que auto consulto
 - cambiar estado
-- escribir notas internas
+- agregar historial de notas internas
 - filtrar y buscar
+- abrir WhatsApp directo al cliente
 
 Estados de consultas:
 
 - Nuevo
 - Contactado
 - Interesado
+- No responde
 - Negociando
 - Reservo
 - Compro
-- Perdido
+- Cerrado
+- Descartado
 
-Las notas internas no se muestran al cliente.
+Las notas internas no se muestran al cliente. Para guardar una nota, escribila en `Agregar nota interna` y toca `Agregar nota`. Las notas quedan como historial con fecha, asi no se pisa informacion anterior.
 
 ## 8. Anti-spam de consultas
 

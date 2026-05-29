@@ -97,7 +97,15 @@ create table if not exists public.leads (
   internal_notes text,
   source text not null default 'web',
   status text not null default 'nuevo'
-    check (status in ('nuevo', 'contactado', 'interesado', 'negociando', 'reservo', 'compro', 'perdido')),
+    check (status in ('nuevo', 'contactado', 'interesado', 'no_responde', 'negociando', 'reservo', 'compro', 'descartado', 'cerrado', 'perdido')),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.lead_notes (
+  id uuid primary key default gen_random_uuid(),
+  lead_id uuid not null references public.leads(id) on delete cascade,
+  note text not null,
+  created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
 
@@ -165,6 +173,7 @@ alter table public.vehicle_expenses enable row level security;
 alter table public.sales enable row level security;
 alter table public.app_settings enable row level security;
 alter table public.leads enable row level security;
+alter table public.lead_notes enable row level security;
 
 drop policy if exists "Admins can read admin users" on public.admin_users;
 create policy "Admins can read admin users"
@@ -254,6 +263,13 @@ with check (true);
 drop policy if exists "Admins can manage leads" on public.leads;
 create policy "Admins can manage leads"
 on public.leads for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Admins can manage lead notes" on public.lead_notes;
+create policy "Admins can manage lead notes"
+on public.lead_notes for all
 to authenticated
 using (public.is_admin())
 with check (public.is_admin());
