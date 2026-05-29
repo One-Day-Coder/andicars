@@ -186,6 +186,9 @@ En el panel podes:
 - abrir WhatsApp directo al cliente
 - cerrar rapido una consulta como No responde o Perdido
 - reactivar una consulta cerrada
+- cargar prioridad del cliente
+- programar proximo contacto
+- cargar motivo de perdida
 
 Estados de consultas:
 
@@ -210,6 +213,10 @@ Cada nota muestra quien la agrego. Si una consulta esta en `No responde` o `Perd
 Si una nota manual se edita, queda visible quien la edito y cuando.
 
 Cada consulta aparece cerrada como resumen. Toca `Ver detalle` para desplegar datos, notas y acciones.
+
+La prioridad sirve para ordenar a quien contactar primero. El proximo contacto sirve para saber que clientes hay que llamar hoy o cuales quedaron vencidos.
+
+Si una consulta se marca como `Perdido`, conviene cargar el motivo: precio, compro otro, no responde, no califica, auto vendido u otro.
 
 ## 8. Anti-spam de consultas
 

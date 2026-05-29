@@ -1295,7 +1295,7 @@ pre {
 
 .lead-filters {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(180px, 260px);
+  grid-template-columns: minmax(260px, 1fr) repeat(3, minmax(160px, 220px));
   gap: 12px;
   margin-top: 18px;
 }
@@ -1385,6 +1385,12 @@ pre {
 .lead-message {
   border-left: 4px solid var(--teal);
   padding-left: 12px;
+}
+
+.lead-management-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 12px;
 }
 
 .lead-quick-actions,
@@ -1485,6 +1491,7 @@ pre {
   .vehicle-row,
   .admin-photo-grid,
     .lead-filters,
+    .lead-management-grid,
     .summary-grid,
     .expenses-layout,
     .sales-layout,

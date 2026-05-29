@@ -46,6 +46,8 @@ export type LeadStatus =
   | "cerrado"
   | "perdido";
 
+export type LeadPriority = "baja" | "media" | "alta";
+
 export type Lead = {
   id: string;
   vehicle_id: string | null;
@@ -56,6 +58,9 @@ export type Lead = {
   internal_notes: string | null;
   source: string;
   status: LeadStatus;
+  priority: LeadPriority;
+  next_contact_at: string | null;
+  loss_reason: string | null;
   created_at: string;
   vehicles?: {
     brand: string;

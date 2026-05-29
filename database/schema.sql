@@ -98,6 +98,10 @@ create table if not exists public.leads (
   source text not null default 'web',
   status text not null default 'nuevo'
     check (status in ('nuevo', 'contactado', 'interesado', 'no_responde', 'negociando', 'reservo', 'compro', 'descartado', 'cerrado', 'perdido')),
+  priority text not null default 'media'
+    check (priority in ('baja', 'media', 'alta')),
+  next_contact_at date,
+  loss_reason text,
   created_at timestamptz not null default now()
 );
 

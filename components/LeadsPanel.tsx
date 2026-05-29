@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import type { AdminRole, Lead, LeadNote, LeadStatus } from "@/types/vehicle";
+import type { AdminRole, Lead, LeadNote, LeadPriority, LeadStatus } from "@/types/vehicle";
 
 const statusOptions: Array<{ value: LeadStatus; label: string }> = [
   { value: "nuevo", label: "Nuevo" },
@@ -15,6 +15,21 @@ const statusOptions: Array<{ value: LeadStatus; label: string }> = [
   { value: "cerrado", label: "Cerrado" },
   { value: "descartado", label: "Descartado" },
   { value: "perdido", label: "Perdido" }
+];
+
+const priorityOptions: Array<{ value: LeadPriority; label: string }> = [
+  { value: "baja", label: "Baja" },
+  { value: "media", label: "Media" },
+  { value: "alta", label: "Alta" }
+];
+
+const lossReasonOptions = [
+  "Precio",
+  "Compro otro",
+  "No responde",
+  "No califica",
+  "Auto vendido",
+  "Otro"
 ];
 
 function formatDate(value: string) {
@@ -47,6 +62,14 @@ function isLeadClosed(status: LeadStatus) {
   return status === "no_responde" || status === "perdido";
 }
 
+function todayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function isDueTodayOrOverdue(value: string | null) {
+  return Boolean(value && value <= todayDate());
+}
+
 export function LeadsPanel() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [notesDraft, setNotesDraft] = useState<Record<string, string>>({});
@@ -55,6 +78,8 @@ export function LeadsPanel() {
   const [editingNoteText, setEditingNoteText] = useState("");
   const [expandedLeadIds, setExpandedLeadIds] = useState<Record<string, boolean>>({});
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "todos">("todos");
+  const [priorityFilter, setPriorityFilter] = useState<LeadPriority | "todas">("todas");
+  const [followUpFilter, setFollowUpFilter] = useState<"todos" | "hoy" | "sin_fecha">("todos");
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -171,13 +196,13 @@ export function LeadsPanel() {
     return true;
   }
 
-  async function updateLeadStatus(id: string, status: LeadStatus, historyNote?: string) {
+  async function updateLeadFields(id: string, values: Partial<Pick<Lead, "status" | "priority" | "next_contact_at" | "loss_reason">>, historyNote?: string) {
     if (!supabase) {
       setMessage("Falta configurar Supabase.");
       return;
     }
 
-    const { error } = await supabase.from("leads").update({ status }).eq("id", id);
+    const { error } = await supabase.from("leads").update(values).eq("id", id);
 
     if (error) {
       setMessage(`No se pudo actualizar: ${error.message}`);
@@ -188,9 +213,12 @@ export function LeadsPanel() {
       await addSystemNote(id, historyNote);
     }
 
-    setLeads((current) => current.map((lead) => (lead.id === id ? { ...lead, status } : lead)));
-    setMessage("Estado actualizado.");
+    setMessage("Consulta actualizada.");
     await loadLeads();
+  }
+
+  async function updateLeadStatus(id: string, status: LeadStatus, historyNote?: string) {
+    await updateLeadFields(id, { status }, historyNote);
   }
 
   async function addLeadNote(id: string) {
@@ -297,12 +325,14 @@ export function LeadsPanel() {
   }
 
   async function closeLead(id: string, status: Extract<LeadStatus, "no_responde" | "perdido">) {
-    const reason = status === "no_responde" ? "Marcado como No responde." : "Marcado como Perdido.";
-    await updateLeadStatus(id, status, reason);
+    const current = leads.find((lead) => lead.id === id);
+    const loss_reason = status === "perdido" ? current?.loss_reason || "Sin motivo cargado" : "No responde";
+    const reason = status === "no_responde" ? "Marcado como No responde." : `Marcado como Perdido. Motivo: ${loss_reason}.`;
+    await updateLeadFields(id, { status, loss_reason }, reason);
   }
 
   async function reactivateLead(id: string) {
-    await updateLeadStatus(id, "contactado", "Consulta reactivada para seguimiento.");
+    await updateLeadFields(id, { status: "contactado", next_contact_at: todayDate() }, "Consulta reactivada para seguimiento.");
   }
 
   function updateDraft(id: string, value: string) {
@@ -320,12 +350,19 @@ export function LeadsPanel() {
   const filteredLeads = leads.filter((lead) => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
     const matchesStatus = statusFilter === "todos" || lead.status === statusFilter;
+    const matchesPriority = priorityFilter === "todas" || lead.priority === priorityFilter;
+    const matchesFollowUp =
+      followUpFilter === "todos" ||
+      (followUpFilter === "hoy" && isDueTodayOrOverdue(lead.next_contact_at)) ||
+      (followUpFilter === "sin_fecha" && !lead.next_contact_at);
     const searchableText = [
       lead.customer_name,
       lead.phone,
       lead.email,
       lead.message,
       lead.internal_notes,
+      lead.source,
+      lead.loss_reason,
       ...(lead.lead_notes || []).map((note) => note.note),
       vehicleLabel(lead)
     ]
@@ -334,7 +371,7 @@ export function LeadsPanel() {
       .toLowerCase();
     const matchesSearch = !normalizedSearch || searchableText.includes(normalizedSearch);
 
-    return matchesStatus && matchesSearch;
+    return matchesStatus && matchesPriority && matchesFollowUp && matchesSearch;
   });
 
   return (
@@ -370,6 +407,25 @@ export function LeadsPanel() {
             ))}
           </select>
         </label>
+        <label>
+          Prioridad
+          <select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value as LeadPriority | "todas")}>
+            <option value="todas">Todas</option>
+            {priorityOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Seguimiento
+          <select value={followUpFilter} onChange={(event) => setFollowUpFilter(event.target.value as "todos" | "hoy" | "sin_fecha")}>
+            <option value="todos">Todos</option>
+            <option value="hoy">Para hoy / vencidos</option>
+            <option value="sin_fecha">Sin fecha</option>
+          </select>
+        </label>
       </div>
 
       {message ? <p className="form-message">{message}</p> : null}
@@ -398,7 +454,7 @@ export function LeadsPanel() {
                 </div>
                 <div>
                   <strong>{lead.phone}</strong>
-                  <span>{formatDate(lead.created_at)}</span>
+                  <span>{lead.next_contact_at ? `Prox. contacto: ${lead.next_contact_at}` : formatDate(lead.created_at)}</span>
                 </div>
                 <span>{isExpanded ? "Ocultar" : "Ver detalle"}</span>
               </button>
@@ -415,6 +471,57 @@ export function LeadsPanel() {
                     {lead.email ? <a href={`mailto:${lead.email}`}>{lead.email}</a> : null}
                   </div>
                   {lead.message ? <p className="lead-message">{lead.message}</p> : null}
+                  <div className="lead-management-grid">
+                    <label>
+                      Prioridad
+                      <select
+                        value={lead.priority || "media"}
+                        onChange={(event) =>
+                          updateLeadFields(lead.id, { priority: event.target.value as LeadPriority }, `Prioridad cambiada a ${event.target.value}.`)
+                        }
+                      >
+                        {priorityOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      Proximo contacto
+                      <input
+                        type="date"
+                        value={lead.next_contact_at || ""}
+                        onChange={(event) =>
+                          updateLeadFields(
+                            lead.id,
+                            { next_contact_at: event.target.value || null },
+                            event.target.value ? `Proximo contacto programado para ${event.target.value}.` : "Se quito la fecha de proximo contacto."
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      Motivo de perdida
+                      <select
+                        value={lead.loss_reason || ""}
+                        onChange={(event) =>
+                          updateLeadFields(
+                            lead.id,
+                            { loss_reason: event.target.value || null },
+                            event.target.value ? `Motivo de perdida cargado: ${event.target.value}.` : "Se quito el motivo de perdida."
+                          )
+                        }
+                      >
+                        <option value="">Sin motivo</option>
+                        {lossReasonOptions.map((reason) => (
+                          <option key={reason} value={reason}>
+                            {reason}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
                   <div className="lead-quick-actions">
                     <button className="button light" type="button" onClick={() => closeLead(lead.id, "no_responde")} disabled={closed}>
                       No responde

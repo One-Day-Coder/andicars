@@ -5,6 +5,16 @@ alter table public.leads
 add column if not exists internal_notes text;
 
 alter table public.leads
+add column if not exists priority text not null default 'media'
+check (priority in ('baja', 'media', 'alta'));
+
+alter table public.leads
+add column if not exists next_contact_at date;
+
+alter table public.leads
+add column if not exists loss_reason text;
+
+alter table public.leads
 drop constraint if exists leads_status_check;
 
 alter table public.leads
