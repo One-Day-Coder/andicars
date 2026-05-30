@@ -745,7 +745,7 @@ export function VehicleForm() {
             {validationErrors.price_usd ? <span className="field-error-message">{validationErrors.price_usd}</span> : null}
           </label>
           {isOwner ? (
-            <label className={fieldClass("purchase_price_usd")}>
+            <label className={`${fieldClass("purchase_price_usd")} owner-internal-field ${editingId ? "owner-internal-field-editing" : ""}`}>
               Precio compra USD
               <input
                 type="number"

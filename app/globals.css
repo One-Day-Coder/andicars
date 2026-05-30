@@ -203,9 +203,15 @@ textarea {
 }
 
 .button.light {
-  border-color: var(--line);
-  background: var(--white);
-  color: var(--ink);
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.05);
+}
+
+.button.light:hover {
+  border-color: #94a3b8;
+  background: #e2e8f0;
 }
 
 .button.danger {
@@ -699,6 +705,11 @@ textarea {
 .vehicle-filters {
   grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(150px, 220px));
   margin-top: 16px;
+  border: 1px solid #dbe4ef;
+  border-left: 5px solid #64748b;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
 }
 
 .settings-form {
@@ -807,6 +818,24 @@ textarea[aria-invalid="true"] {
   color: #b91c1c;
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+.owner-internal-field {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 8px;
+  margin: -8px;
+}
+
+.owner-internal-field-editing {
+  border-color: #fca5a5;
+  background: #fff1f2;
+}
+
+.owner-internal-field-editing input {
+  border-color: #ef4444;
+  background: #fff7f7;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
 .settings-box {
