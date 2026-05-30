@@ -684,7 +684,7 @@ textarea {
 
 .compact-field-grid {
   grid-template-columns: repeat(4, minmax(130px, 220px));
-  align-items: end;
+  align-items: start;
 }
 
 .compact-field-grid-main {
