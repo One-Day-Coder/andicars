@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { formatKm, formatUsd } from "@/lib/format";
 import type { Vehicle, VehiclePhoto, VehicleStatus } from "@/types/vehicle";
@@ -50,6 +50,22 @@ const vehicleStatusOptions: Array<{ value: VehicleStatus; label: string }> = [
   { value: "entregado", label: "Entregado" }
 ];
 
+const publishedFilterOptions = [
+  { value: "todos", label: "Todos" },
+  { value: "publicados", label: "Publicados" },
+  { value: "ocultos", label: "Ocultos" },
+  { value: "catalogo", label: "Visibles en catalogo" },
+  { value: "no_catalogo", label: "No visibles en catalogo" },
+  { value: "sin_foto", label: "Sin foto" }
+];
+
+const sortOptions = [
+  { value: "recientes", label: "Mas nuevos" },
+  { value: "precio_mayor", label: "Precio mayor" },
+  { value: "precio_menor", label: "Precio menor" },
+  { value: "estado", label: "Estado" }
+];
+
 function getCatalogVisibility(vehicle: Vehicle) {
   const visibleStatuses: VehicleStatus[] = ["disponible", "reservado"];
 
@@ -79,12 +95,19 @@ function getCatalogVisibility(vehicle: Vehicle) {
 export function VehicleForm() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [form, setForm] = useState<FormState>(initialForm);
+  const [savedForm, setSavedForm] = useState<FormState>(initialForm);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [currentPhotos, setCurrentPhotos] = useState<VehiclePhoto[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mainPhotoPreview, setMainPhotoPreview] = useState("");
+  const [galleryPreviews, setGalleryPreviews] = useState<Array<{ name: string; url: string }>>([]);
+  const [filterSearch, setFilterSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("todos");
+  const [filterPublished, setFilterPublished] = useState("todos");
+  const [sortBy, setSortBy] = useState("recientes");
 
   async function loadVehicles() {
     if (!supabase) {
@@ -108,6 +131,71 @@ export function VehicleForm() {
   useEffect(() => {
     loadVehicles();
   }, []);
+
+  useEffect(() => {
+    if (!photoFile) {
+      setMainPhotoPreview("");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(photoFile);
+    setMainPhotoPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [photoFile]);
+
+  useEffect(() => {
+    const previews = galleryFiles.map((file) => ({
+      name: file.name,
+      url: URL.createObjectURL(file)
+    }));
+
+    setGalleryPreviews(previews);
+
+    return () => {
+      previews.forEach((preview) => URL.revokeObjectURL(preview.url));
+    };
+  }, [galleryFiles]);
+
+  const hasUnsavedChanges = useMemo(() => {
+    return JSON.stringify(form) !== JSON.stringify(savedForm) || Boolean(photoFile) || galleryFiles.length > 0;
+  }, [form, savedForm, photoFile, galleryFiles]);
+
+  const filteredVehicles = useMemo(() => {
+    const search = filterSearch.trim().toLowerCase();
+
+    return vehicles
+      .filter((vehicle) => {
+        const title = `${vehicle.brand} ${vehicle.model} ${vehicle.version || ""} ${vehicle.year}`.toLowerCase();
+        const matchesSearch = !search || title.includes(search);
+        const matchesStatus = filterStatus === "todos" || vehicle.status === filterStatus;
+        const isCatalogVisible = vehicle.is_published && ["disponible", "reservado"].includes(vehicle.status);
+        const matchesPublished =
+          filterPublished === "todos" ||
+          (filterPublished === "publicados" && vehicle.is_published) ||
+          (filterPublished === "ocultos" && !vehicle.is_published) ||
+          (filterPublished === "catalogo" && isCatalogVisible) ||
+          (filterPublished === "no_catalogo" && !isCatalogVisible) ||
+          (filterPublished === "sin_foto" && !vehicle.main_photo_url);
+
+        return matchesSearch && matchesStatus && matchesPublished;
+      })
+      .sort((first, second) => {
+        if (sortBy === "precio_mayor") {
+          return Number(second.price_usd || 0) - Number(first.price_usd || 0);
+        }
+
+        if (sortBy === "precio_menor") {
+          return Number(first.price_usd || 0) - Number(second.price_usd || 0);
+        }
+
+        if (sortBy === "estado") {
+          return first.status.localeCompare(second.status);
+        }
+
+        return new Date(second.created_at).getTime() - new Date(first.created_at).getTime();
+      });
+  }, [vehicles, filterSearch, filterStatus, filterPublished, sortBy]);
 
   function updateField(name: keyof FormState, value: string | boolean) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -143,6 +231,7 @@ export function VehicleForm() {
 
   function resetForm() {
     setForm(initialForm);
+    setSavedForm(initialForm);
     setPhotoFile(null);
     setGalleryFiles([]);
     setCurrentPhotos([]);
@@ -151,8 +240,15 @@ export function VehicleForm() {
   }
 
   async function editVehicle(vehicle: Vehicle) {
-    setEditingId(vehicle.id);
-    setForm({
+    if (hasUnsavedChanges) {
+      const confirmed = window.confirm("Tenes cambios sin guardar. Si editas otro vehiculo ahora, esos cambios se pierden. Queres continuar?");
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    const nextForm = {
       brand: vehicle.brand || "",
       model: vehicle.model || "",
       version: vehicle.version || "",
@@ -168,7 +264,11 @@ export function VehicleForm() {
       status: vehicle.status || "en_preparacion",
       is_published: vehicle.is_published || false,
       main_photo_url: vehicle.main_photo_url || ""
-    });
+    };
+
+    setEditingId(vehicle.id);
+    setForm(nextForm);
+    setSavedForm(nextForm);
     setPhotoFile(null);
     setGalleryFiles([]);
     await loadVehiclePhotos(vehicle.id);
@@ -351,10 +451,22 @@ export function VehicleForm() {
       return;
     }
 
+    if (!form.brand.trim() || !form.model.trim()) {
+      setMessage("Marca y modelo son obligatorios.");
+      setLoading(false);
+      return;
+    }
+
+    if (Number(form.year) <= 0 || Number(form.mileage) < 0 || Number(form.price_usd) <= 0) {
+      setMessage("Revisa anio, kilometraje y precio publicado. Tienen que ser numeros validos.");
+      setLoading(false);
+      return;
+    }
+
     const payload = {
-      brand: form.brand,
-      model: form.model,
-      version: form.version || null,
+      brand: form.brand.trim(),
+      model: form.model.trim(),
+      version: form.version.trim() || null,
       year: Number(form.year),
       mileage: Number(form.mileage),
       vehicle_type: form.vehicle_type,
@@ -363,7 +475,7 @@ export function VehicleForm() {
       price_usd: Number(form.price_usd),
       purchase_price_usd: form.purchase_price_usd ? Number(form.purchase_price_usd) : null,
       color: form.color,
-      description: form.description || null,
+      description: form.description.trim() || null,
       status: form.status,
       is_published: form.is_published,
       main_photo_url: form.main_photo_url || null
@@ -406,6 +518,7 @@ export function VehicleForm() {
       }
 
       setForm(initialForm);
+      setSavedForm(initialForm);
       setPhotoFile(null);
       setGalleryFiles([]);
       setCurrentPhotos([]);
@@ -453,31 +566,33 @@ export function VehicleForm() {
           Kilometraje
           <input type="number" value={form.mileage} onChange={(event) => updateField("mileage", event.target.value)} required />
         </label>
-        <label>
-          Tipo
-          <select value={form.vehicle_type} onChange={(event) => updateField("vehicle_type", event.target.value)}>
-            <option>Sedan</option>
-            <option>Hatchback</option>
-            <option>SUV</option>
-            <option>Pickup</option>
-          </select>
-        </label>
-        <label>
-          Transmision
-          <select value={form.transmission} onChange={(event) => updateField("transmission", event.target.value)}>
-            <option>Manual</option>
-            <option>Automatico</option>
-          </select>
-        </label>
-        <label>
-          Combustible
-          <select value={form.fuel} onChange={(event) => updateField("fuel", event.target.value)}>
-            <option>Nafta</option>
-            <option>Diesel</option>
-            <option>Hibrido</option>
-            <option>Electrico</option>
-          </select>
-        </label>
+        <div className="compact-field-grid wide-field">
+          <label>
+            Tipo
+            <select value={form.vehicle_type} onChange={(event) => updateField("vehicle_type", event.target.value)}>
+              <option>Sedan</option>
+              <option>Hatchback</option>
+              <option>SUV</option>
+              <option>Pickup</option>
+            </select>
+          </label>
+          <label>
+            Transmision
+            <select value={form.transmission} onChange={(event) => updateField("transmission", event.target.value)}>
+              <option>Manual</option>
+              <option>Automatico</option>
+            </select>
+          </label>
+          <label>
+            Combustible
+            <select value={form.fuel} onChange={(event) => updateField("fuel", event.target.value)}>
+              <option>Nafta</option>
+              <option>Diesel</option>
+              <option>Hibrido</option>
+              <option>Electrico</option>
+            </select>
+          </label>
+        </div>
         <label>
           Precio publicado USD
           <input type="number" value={form.price_usd} onChange={(event) => updateField("price_usd", event.target.value)} required />
@@ -486,20 +601,22 @@ export function VehicleForm() {
           Precio compra USD
           <input type="number" value={form.purchase_price_usd} onChange={(event) => updateField("purchase_price_usd", event.target.value)} />
         </label>
-        <label>
-          Estado
-          <select value={form.status} onChange={(event) => updateField("status", event.target.value as Vehicle["status"])}>
-            {vehicleStatusOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Color
-          <input type="color" value={form.color} onChange={(event) => updateField("color", event.target.value)} />
-        </label>
+        <div className="compact-field-grid wide-field">
+          <label>
+            Estado
+            <select value={form.status} onChange={(event) => updateField("status", event.target.value as Vehicle["status"])}>
+              {vehicleStatusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Color
+            <input type="color" value={form.color} onChange={(event) => updateField("color", event.target.value)} />
+          </label>
+        </div>
         <div className="photo-field wide-field">
           <label>
             Foto principal
@@ -510,7 +627,11 @@ export function VehicleForm() {
             />
           </label>
           {photoFile ? <p>Foto seleccionada: {photoFile.name}</p> : null}
-          {form.main_photo_url ? (
+          {mainPhotoPreview ? (
+            <div className="photo-preview">
+              <img src={mainPhotoPreview} alt="Vista previa de la foto principal" />
+            </div>
+          ) : form.main_photo_url ? (
             <div className="photo-preview">
               <img src={form.main_photo_url} alt="Foto principal actual" />
             </div>
@@ -531,6 +652,16 @@ export function VehicleForm() {
             />
           </label>
           {galleryFiles.length > 0 ? <p>{galleryFiles.length} foto{galleryFiles.length === 1 ? "" : "s"} seleccionada{galleryFiles.length === 1 ? "" : "s"} para galeria.</p> : null}
+          {galleryPreviews.length > 0 ? (
+            <div className="admin-photo-grid">
+              {galleryPreviews.map((preview) => (
+                <article key={preview.url}>
+                  <img src={preview.url} alt={`Vista previa de ${preview.name}`} />
+                  <p>{preview.name}</p>
+                </article>
+              ))}
+            </div>
+          ) : null}
           {currentPhotos.length > 0 ? (
             <div className="admin-photo-grid">
               {currentPhotos.map((photo) => (
@@ -559,6 +690,7 @@ export function VehicleForm() {
           <button className="button light" type="button" onClick={resetForm}>
             Limpiar
           </button>
+          {hasUnsavedChanges ? <span className="unsaved-hint">Cambios sin guardar</span> : null}
         </div>
         {message ? <p className="form-message wide-field">{message}</p> : null}
       </form>
@@ -576,15 +708,55 @@ export function VehicleForm() {
         <div className="stock-header">
           <div>
             <h2>Vehiculos cargados</h2>
-            <p>Edita, elimina o cambia la publicacion sin entrar a Supabase.</p>
+            <p>Edita, filtra, elimina o cambia la publicacion sin entrar a Supabase.</p>
           </div>
+        </div>
+
+        <div className="vehicle-filters">
+          <label>
+            Buscar
+            <input value={filterSearch} onChange={(event) => setFilterSearch(event.target.value)} placeholder="Marca, modelo, version o anio" />
+          </label>
+          <label>
+            Estado
+            <select value={filterStatus} onChange={(event) => setFilterStatus(event.target.value)}>
+              <option value="todos">Todos</option>
+              {vehicleStatusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Publicacion
+            <select value={filterPublished} onChange={(event) => setFilterPublished(event.target.value)}>
+              {publishedFilterOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Orden
+            <select value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
 
         {vehicles.length === 0 ? (
           <p className="empty-state">Todavia no hay vehiculos cargados.</p>
+        ) : filteredVehicles.length === 0 ? (
+          <p className="empty-state">No hay vehiculos que coincidan con esos filtros.</p>
         ) : (
           <div className="vehicle-list">
-            {vehicles.map((vehicle) => {
+            {filteredVehicles.map((vehicle) => {
               const title = `${vehicle.brand} ${vehicle.model}${vehicle.version ? ` ${vehicle.version}` : ""}`;
               const catalogVisibility = getCatalogVisibility(vehicle);
 

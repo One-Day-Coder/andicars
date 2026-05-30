@@ -109,9 +109,11 @@ Sirve para:
 - editar autos
 - subir foto principal
 - subir fotos adicionales
+- ver una vista previa de las fotos antes de guardar
 - publicar u ocultar autos
 - cambiar estado
 - eliminar autos
+- buscar, filtrar y ordenar el stock cargado
 
 Estados disponibles:
 
@@ -128,6 +130,23 @@ Cuando aparece en la web publica:
 - debe estar en estado `Disponible` o `Reservado`
 
 Si esta oculto, vendido, entregado o en preparacion, no aparece en el catalogo publico.
+
+Controles utiles:
+
+- `Buscar`: encuentra autos por marca, modelo, version o anio.
+- `Estado`: filtra por disponible, reservado, vendido, etc.
+- `Publicacion`: filtra publicados, ocultos, visibles en catalogo, no visibles o sin foto.
+- `Orden`: ordena por mas nuevos, precio mayor, precio menor o estado.
+
+Mientras cargas o editas un vehiculo, el panel muestra `Cambios sin guardar`.
+Si intentas editar otro auto sin guardar primero, aparece una alerta para confirmar.
+
+Campos importantes:
+
+- Marca, modelo, anio, kilometraje y precio publicado son datos obligatorios.
+- Anio, kilometraje y precio tienen que ser numeros validos.
+- La foto principal se usa en el catalogo.
+- Las fotos adicionales se ven dentro de la ficha del auto.
 
 ## 5. Catalogo publico
 

@@ -667,8 +667,29 @@ textarea {
 .vehicle-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
   padding: clamp(18px, 3vw, 28px);
+}
+
+.compact-field-grid,
+.vehicle-filters {
+  display: grid;
+  gap: 10px;
+}
+
+.compact-field-grid {
+  grid-template-columns: repeat(4, minmax(130px, 220px));
+  align-items: end;
+}
+
+.compact-field-grid input,
+.compact-field-grid select {
+  min-height: 38px;
+}
+
+.vehicle-filters {
+  grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(150px, 220px));
+  margin-top: 16px;
 }
 
 .settings-form {
@@ -736,12 +757,19 @@ textarea {
 .form-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
 }
 
 .form-message {
   margin: 0;
   color: var(--teal-dark);
+  font-weight: 800;
+}
+
+.unsaved-hint {
+  color: #92400e;
+  font-size: 0.9rem;
   font-weight: 800;
 }
 
@@ -1299,6 +1327,14 @@ textarea {
   object-fit: cover;
 }
 
+.admin-photo-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
 .admin-photo-grid .button {
   min-height: 38px;
   padding: 8px 10px;
@@ -1722,6 +1758,8 @@ pre {
   .split-section,
   .admin-layout,
   .vehicle-form,
+  .compact-field-grid,
+  .vehicle-filters,
   .debug-grid,
   .vehicle-row,
   .admin-photo-grid,
