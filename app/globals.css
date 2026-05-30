@@ -214,6 +214,46 @@ textarea {
   background: #e2e8f0;
 }
 
+.button.secondary {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.button.secondary:hover {
+  border-color: #64748b;
+  background: #e2e8f0;
+}
+
+.button.action-edit {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.button.action-edit:hover {
+  background: #dbeafe;
+}
+
+.button.action-hide {
+  border-color: #fbbf24;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.button.action-hide:hover {
+  background: #fef3c7;
+}
+
+.button.action-publish {
+  background: #0f766e;
+  color: var(--white);
+}
+
+.button.action-publish:hover {
+  background: #115e59;
+}
+
 .button.danger {
   background: var(--red);
   color: var(--white);
@@ -1306,6 +1346,47 @@ textarea[aria-invalid="true"] {
 .quick-status select {
   min-height: 40px;
   padding: 8px 10px;
+}
+
+.status-control select {
+  border-width: 1px;
+  font-weight: 900;
+}
+
+.status-en_preparacion select {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.status-disponible select {
+  border-color: #86efac;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.status-reservado select {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.status-senado select {
+  border-color: #fbbf24;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.status-vendido select {
+  border-color: #c4b5fd;
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.status-entregado select {
+  border-color: #99f6e4;
+  background: #f0fdfa;
+  color: #0f766e;
 }
 
 .status-badge {

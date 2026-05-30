@@ -680,7 +680,7 @@ export function VehicleForm() {
             <p>{editingId ? "Estas modificando un auto ya cargado." : "Carga una unidad nueva al stock interno."}</p>
           </div>
           {editingId ? (
-            <button className="button light" type="button" onClick={resetForm}>
+            <button className="button secondary" type="button" onClick={resetForm}>
               Cancelar edicion
             </button>
           ) : null}
@@ -758,7 +758,7 @@ export function VehicleForm() {
           ) : null}
         </div>
         <div className="compact-field-grid wide-field">
-          <label>
+          <label className={`status-control status-${form.status}`}>
             Estado
             <select value={form.status} onChange={(event) => updateField("status", event.target.value as Vehicle["status"])}>
               {vehicleStatusOptions.map((option) => (
@@ -852,7 +852,7 @@ export function VehicleForm() {
           <button className="button primary" type="submit" disabled={loading}>
             {loading ? "Guardando..." : editingId ? "Guardar cambios" : "Guardar vehiculo"}
           </button>
-          <button className="button light" type="button" onClick={resetForm}>
+          <button className="button secondary" type="button" onClick={resetForm}>
             Limpiar
           </button>
           {hasUnsavedChanges ? <span className="unsaved-hint">Cambios sin guardar</span> : null}
@@ -940,7 +940,7 @@ export function VehicleForm() {
                     <span className="status-badge warning">Sin precio compra</span>
                   ) : null}
                   <strong>{formatUsd(vehicle.price_usd)}</strong>
-                  <label className="quick-status">
+                  <label className={`quick-status status-control status-${vehicle.status}`}>
                     Estado
                     <select value={vehicle.status} onChange={(event) => updateVehicleStatus(vehicle, event.target.value as VehicleStatus)}>
                       {vehicleStatusOptions.map((option) => (
@@ -958,10 +958,10 @@ export function VehicleForm() {
                     <p>{catalogVisibility.detail}</p>
                   </div>
                   <div className="row-actions">
-                    <button className="button light" type="button" onClick={() => editVehicle(vehicle)}>
+                    <button className="button action-edit" type="button" onClick={() => editVehicle(vehicle)}>
                       Editar
                     </button>
-                    <button className="button light" type="button" onClick={() => togglePublished(vehicle)}>
+                    <button className={vehicle.is_published ? "button action-hide" : "button action-publish"} type="button" onClick={() => togglePublished(vehicle)}>
                       {vehicle.is_published ? "Ocultar" : "Publicar"}
                     </button>
                     <button className="button danger" type="button" onClick={() => deleteVehicle(vehicle)}>
