@@ -15,6 +15,7 @@ type PanelLink = {
   description: string;
   href: string;
   button: string;
+  tone: string;
 };
 
 const panelLinks: PanelLink[] = [
@@ -23,49 +24,56 @@ const panelLinks: PanelLink[] = [
     title: "Vehiculos",
     description: "Carga autos, estado, precio y publicacion.",
     href: "/admin/vehiculos",
-    button: "Abrir vehiculos"
+    button: "Abrir vehiculos",
+    tone: "vehicles"
   },
   {
     module: "leads",
     title: "Clientes",
     description: "Consultas y seguimiento comercial basico.",
     href: "/admin/consultas",
-    button: "Abrir consultas"
+    button: "Abrir consultas",
+    tone: "leads"
   },
   {
     module: "expenses",
     title: "Gastos",
     description: "Carga gastos asociados a cada unidad.",
     href: "/admin/gastos",
-    button: "Abrir gastos"
+    button: "Abrir gastos",
+    tone: "expenses"
   },
   {
     module: "sales",
     title: "Ventas",
     description: "Registra reservas, senas, ventas y entregas.",
     href: "/admin/ventas",
-    button: "Abrir ventas"
+    button: "Abrir ventas",
+    tone: "sales"
   },
   {
     module: "reports",
     title: "Reportes",
     description: "Resumen general de inversion, gastos y rentabilidad.",
     href: "/admin/reportes",
-    button: "Abrir reportes"
+    button: "Abrir reportes",
+    tone: "reports"
   },
   {
     module: "settings",
     title: "Configuracion",
     description: "WhatsApp, datos generales y anti-spam.",
     href: "/admin/configuracion",
-    button: "Abrir configuracion"
+    button: "Abrir configuracion",
+    tone: "settings"
   },
   {
     module: "users",
     title: "Usuarios",
     description: "Roles y accesos internos para el panel.",
     href: "/admin/usuarios",
-    button: "Abrir usuarios"
+    button: "Abrir usuarios",
+    tone: "users"
   }
 ];
 
@@ -113,10 +121,10 @@ export default function AdminPage() {
             </p>
           </section>
           <AdminSummary />
-          <section className="service-grid">
+          <section className="panel-module-grid">
             {role ? (
               visibleLinks.map((link) => (
-                <article key={link.href}>
+                <article className={`panel-module panel-module-${link.tone}`} key={link.href}>
                   <h3>{link.title}</h3>
                   <p>{link.description}</p>
                   <Link className="button light" href={link.href}>

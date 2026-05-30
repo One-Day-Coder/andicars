@@ -99,27 +99,27 @@ export function AdminSummary() {
       {loading ? <p className="empty-state">Cargando resumen...</p> : null}
 
       <div className="summary-grid">
-        <article>
+        <article className="summary-card summary-card-vehicles">
           <span>Vehiculos</span>
           <strong>{summary.totalVehicles}</strong>
           <p>{summary.publishedVehicles} publicados / {summary.hiddenVehicles} ocultos</p>
         </article>
-        <article>
+        <article className="summary-card summary-card-catalog">
           <span>Catalogo publico</span>
           <strong>{summary.visibleCatalogVehicles}</strong>
           <p>{summary.publishedButNotVisibleVehicles} publicados no visibles por estado</p>
         </article>
-        <article>
+        <article className="summary-card summary-card-stock">
           <span>Disponibles</span>
           <strong>{summary.availableVehicles}</strong>
           <p>{summary.reservedVehicles} reservados</p>
         </article>
-        <article>
+        <article className="summary-card summary-card-leads">
           <span>Consultas</span>
           <strong>{summary.totalLeads}</strong>
           <p>{summary.newLeads} nuevas</p>
         </article>
-        <article>
+        <article className="summary-card summary-card-followup">
           <span>En seguimiento</span>
           <strong>{summary.activeLeads}</strong>
           <p>Contactados o negociando</p>

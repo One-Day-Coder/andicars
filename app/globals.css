@@ -543,10 +543,16 @@ textarea {
 
 .admin-shell {
   gap: 22px;
+  padding-top: clamp(32px, 4vw, 56px);
+  padding-bottom: clamp(32px, 4vw, 56px);
 }
 
 .admin-shell .admin-intro {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
+}
+
+.admin-shell .admin-intro h1 {
+  font-size: clamp(2.2rem, 4vw, 3.35rem);
 }
 
 .admin-shell .button {
@@ -556,15 +562,13 @@ textarea {
 
 .admin-shell .admin-tools,
 .admin-shell .admin-stock,
-.admin-shell .summary-section,
-.admin-shell .service-grid article {
+.admin-shell .summary-section {
   padding: 18px;
 }
 
 .admin-shell .admin-tools h2,
 .admin-shell .summary-section h2,
-.admin-shell .admin-stock h2,
-.admin-shell .service-grid h2 {
+.admin-shell .admin-stock h2 {
   font-size: 1.15rem;
 }
 
@@ -577,6 +581,87 @@ textarea {
 .admin-shell textarea {
   min-height: 40px;
   padding: 9px 11px;
+}
+
+.panel-module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.panel-module {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--module-accent, var(--teal));
+  border-radius: 8px;
+  background: var(--module-bg, var(--white));
+  padding: 15px 16px;
+  box-shadow: 0 1px 0 rgba(16, 24, 40, 0.03);
+}
+
+.panel-module h3,
+.panel-module p {
+  margin: 0;
+}
+
+.panel-module h3 {
+  font-size: 1rem;
+}
+
+.panel-module p {
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.panel-module .button {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.panel-module-vehicles,
+.summary-card-vehicles {
+  --module-accent: #0f766e;
+  --module-bg: #f0fdfa;
+}
+
+.panel-module-leads,
+.summary-card-leads {
+  --module-accent: #0284c7;
+  --module-bg: #eff6ff;
+}
+
+.panel-module-expenses {
+  --module-accent: #d97706;
+  --module-bg: #fff7ed;
+}
+
+.panel-module-sales,
+.summary-card-followup {
+  --module-accent: #7c3aed;
+  --module-bg: #f5f3ff;
+}
+
+.panel-module-reports,
+.summary-card-catalog {
+  --module-accent: #0f766e;
+  --module-bg: #ecfdf5;
+}
+
+.panel-module-settings {
+  --module-accent: #64748b;
+  --module-bg: #f8fafc;
+}
+
+.panel-module-users {
+  --module-accent: #334155;
+  --module-bg: #f1f5f9;
+}
+
+.summary-card-stock {
+  --module-accent: #16a34a;
+  --module-bg: #f0fdf4;
 }
 
 .vehicle-form {
@@ -704,36 +789,38 @@ textarea {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .summary-grid article {
   display: grid;
-  gap: 6px;
+  gap: 5px;
   border: 1px solid var(--line);
+  border-left: 5px solid var(--module-accent, var(--line));
   border-radius: 8px;
-  background: #fbfcfd;
-  padding: 16px;
+  background: var(--module-bg, #fbfcfd);
+  padding: 12px 14px;
 }
 
 .summary-grid span {
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
 }
 
 .summary-grid strong {
   color: var(--ink);
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: clamp(1.75rem, 3vw, 2.45rem);
   line-height: 1;
 }
 
 .summary-grid p {
   margin: 0;
   color: var(--muted);
+  font-size: 0.92rem;
 }
 
 .expenses-layout {
@@ -1630,6 +1717,7 @@ pre {
 
   .car-grid,
   .service-grid,
+  .panel-module-grid,
   .contact-grid,
   .split-section,
   .admin-layout,
