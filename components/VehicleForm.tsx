@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { formatKm, formatUsd } from "@/lib/format";
 import type { Vehicle, VehiclePhoto, VehicleStatus } from "@/types/vehicle";
@@ -108,6 +108,8 @@ export function VehicleForm() {
   const [filterStatus, setFilterStatus] = useState("todos");
   const [filterPublished, setFilterPublished] = useState("todos");
   const [sortBy, setSortBy] = useState("recientes");
+  const mainPhotoInputRef = useRef<HTMLInputElement | null>(null);
+  const galleryInputRef = useRef<HTMLInputElement | null>(null);
 
   async function loadVehicles() {
     if (!supabase) {
@@ -202,11 +204,35 @@ export function VehicleForm() {
   }
 
   function updatePhotoFile(file: File | null) {
+    if (!file) {
+      return;
+    }
+
     setPhotoFile(file);
   }
 
   function updateGalleryFiles(files: FileList | null) {
-    setGalleryFiles(files ? Array.from(files) : []);
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    setGalleryFiles(Array.from(files));
+  }
+
+  function removeMainPhotoFile() {
+    setPhotoFile(null);
+
+    if (mainPhotoInputRef.current) {
+      mainPhotoInputRef.current.value = "";
+    }
+  }
+
+  function removeGalleryFile(indexToRemove: number) {
+    setGalleryFiles((current) => current.filter((_, index) => index !== indexToRemove));
+
+    if (galleryInputRef.current) {
+      galleryInputRef.current.value = "";
+    }
   }
 
   async function loadVehiclePhotos(vehicleId: string) {
@@ -234,6 +260,12 @@ export function VehicleForm() {
     setSavedForm(initialForm);
     setPhotoFile(null);
     setGalleryFiles([]);
+    if (mainPhotoInputRef.current) {
+      mainPhotoInputRef.current.value = "";
+    }
+    if (galleryInputRef.current) {
+      galleryInputRef.current.value = "";
+    }
     setCurrentPhotos([]);
     setEditingId(null);
     setMessage("");
@@ -271,6 +303,12 @@ export function VehicleForm() {
     setSavedForm(nextForm);
     setPhotoFile(null);
     setGalleryFiles([]);
+    if (mainPhotoInputRef.current) {
+      mainPhotoInputRef.current.value = "";
+    }
+    if (galleryInputRef.current) {
+      galleryInputRef.current.value = "";
+    }
     await loadVehiclePhotos(vehicle.id);
     setMessage("Editando vehiculo. Cuando termines, toca Guardar cambios.");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -458,7 +496,7 @@ export function VehicleForm() {
     }
 
     if (Number(form.year) <= 0 || Number(form.mileage) < 0 || Number(form.price_usd) <= 0) {
-      setMessage("Revisa anio, kilometraje y precio publicado. Tienen que ser numeros validos.");
+      setMessage("Revisa año, kilometraje y precio publicado. Tienen que ser numeros validos.");
       setLoading(false);
       return;
     }
@@ -521,6 +559,12 @@ export function VehicleForm() {
       setSavedForm(initialForm);
       setPhotoFile(null);
       setGalleryFiles([]);
+      if (mainPhotoInputRef.current) {
+        mainPhotoInputRef.current.value = "";
+      }
+      if (galleryInputRef.current) {
+        galleryInputRef.current.value = "";
+      }
       setCurrentPhotos([]);
       setEditingId(null);
       setMessage(editingId ? "Vehiculo actualizado correctamente." : "Vehiculo guardado correctamente.");
@@ -546,26 +590,28 @@ export function VehicleForm() {
             </button>
           ) : null}
         </div>
-        <label>
-          Marca
-          <input value={form.brand} onChange={(event) => updateField("brand", event.target.value)} required />
-        </label>
-        <label>
-          Modelo
-          <input value={form.model} onChange={(event) => updateField("model", event.target.value)} required />
-        </label>
-        <label>
-          Version
-          <input value={form.version} onChange={(event) => updateField("version", event.target.value)} />
-        </label>
-        <label>
-          Anio
-          <input type="number" value={form.year} onChange={(event) => updateField("year", event.target.value)} required />
-        </label>
-        <label>
-          Kilometraje
-          <input type="number" value={form.mileage} onChange={(event) => updateField("mileage", event.target.value)} required />
-        </label>
+        <div className="compact-field-grid compact-field-grid-main wide-field">
+          <label>
+            Marca
+            <input value={form.brand} onChange={(event) => updateField("brand", event.target.value)} required />
+          </label>
+          <label>
+            Modelo
+            <input value={form.model} onChange={(event) => updateField("model", event.target.value)} required />
+          </label>
+          <label>
+            Version
+            <input value={form.version} onChange={(event) => updateField("version", event.target.value)} />
+          </label>
+          <label>
+            Año
+            <input type="number" value={form.year} onChange={(event) => updateField("year", event.target.value)} required />
+          </label>
+          <label>
+            Kilometraje
+            <input type="number" value={form.mileage} onChange={(event) => updateField("mileage", event.target.value)} required />
+          </label>
+        </div>
         <div className="compact-field-grid wide-field">
           <label>
             Tipo
@@ -593,14 +639,16 @@ export function VehicleForm() {
             </select>
           </label>
         </div>
-        <label>
-          Precio publicado USD
-          <input type="number" value={form.price_usd} onChange={(event) => updateField("price_usd", event.target.value)} required />
-        </label>
-        <label>
-          Precio compra USD
-          <input type="number" value={form.purchase_price_usd} onChange={(event) => updateField("purchase_price_usd", event.target.value)} />
-        </label>
+        <div className="compact-field-grid wide-field">
+          <label>
+            Precio publicado USD
+            <input type="number" value={form.price_usd} onChange={(event) => updateField("price_usd", event.target.value)} required />
+          </label>
+          <label>
+            Precio compra USD
+            <input type="number" value={form.purchase_price_usd} onChange={(event) => updateField("purchase_price_usd", event.target.value)} />
+          </label>
+        </div>
         <div className="compact-field-grid wide-field">
           <label>
             Estado
@@ -613,8 +661,9 @@ export function VehicleForm() {
             </select>
           </label>
           <label>
-            Color
+            Color de respaldo
             <input type="color" value={form.color} onChange={(event) => updateField("color", event.target.value)} />
+            <span className="field-help">Se usa solo si el auto no tiene foto.</span>
           </label>
         </div>
         <div className="photo-field wide-field">
@@ -622,14 +671,18 @@ export function VehicleForm() {
             Foto principal
             <input
               accept="image/jpeg,image/png,image/webp"
+              ref={mainPhotoInputRef}
               type="file"
               onChange={(event) => updatePhotoFile(event.target.files?.[0] || null)}
             />
           </label>
           {photoFile ? <p>Foto seleccionada: {photoFile.name}</p> : null}
           {mainPhotoPreview ? (
-            <div className="photo-preview">
+            <div className="photo-preview selected-photo-preview">
               <img src={mainPhotoPreview} alt="Vista previa de la foto principal" />
+              <button className="button danger" type="button" onClick={removeMainPhotoFile}>
+                Quitar foto seleccionada
+              </button>
             </div>
           ) : form.main_photo_url ? (
             <div className="photo-preview">
@@ -647,6 +700,7 @@ export function VehicleForm() {
             <input
               accept="image/jpeg,image/png,image/webp"
               multiple
+              ref={galleryInputRef}
               type="file"
               onChange={(event) => updateGalleryFiles(event.target.files)}
             />
@@ -654,10 +708,13 @@ export function VehicleForm() {
           {galleryFiles.length > 0 ? <p>{galleryFiles.length} foto{galleryFiles.length === 1 ? "" : "s"} seleccionada{galleryFiles.length === 1 ? "" : "s"} para galeria.</p> : null}
           {galleryPreviews.length > 0 ? (
             <div className="admin-photo-grid">
-              {galleryPreviews.map((preview) => (
+              {galleryPreviews.map((preview, index) => (
                 <article key={preview.url}>
                   <img src={preview.url} alt={`Vista previa de ${preview.name}`} />
                   <p>{preview.name}</p>
+                  <button className="button danger" type="button" onClick={() => removeGalleryFile(index)}>
+                    Quitar
+                  </button>
                 </article>
               ))}
             </div>
@@ -715,7 +772,7 @@ export function VehicleForm() {
         <div className="vehicle-filters">
           <label>
             Buscar
-            <input value={filterSearch} onChange={(event) => setFilterSearch(event.target.value)} placeholder="Marca, modelo, version o anio" />
+            <input value={filterSearch} onChange={(event) => setFilterSearch(event.target.value)} placeholder="Marca, modelo, version o año" />
           </label>
           <label>
             Estado

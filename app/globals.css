@@ -682,6 +682,10 @@ textarea {
   align-items: end;
 }
 
+.compact-field-grid-main {
+  grid-template-columns: repeat(5, minmax(130px, 220px));
+}
+
 .compact-field-grid input,
 .compact-field-grid select {
   min-height: 38px;
@@ -1305,6 +1309,17 @@ textarea {
   object-fit: cover;
 }
 
+.selected-photo-preview {
+  display: grid;
+  gap: 8px;
+}
+
+.selected-photo-preview .button {
+  width: fit-content;
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
 .admin-photo-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1336,6 +1351,7 @@ textarea {
 }
 
 .admin-photo-grid .button {
+  width: 100%;
   min-height: 38px;
   padding: 8px 10px;
   font-size: 0.84rem;
@@ -1759,6 +1775,7 @@ pre {
   .admin-layout,
   .vehicle-form,
   .compact-field-grid,
+  .compact-field-grid-main,
   .vehicle-filters,
   .debug-grid,
   .vehicle-row,

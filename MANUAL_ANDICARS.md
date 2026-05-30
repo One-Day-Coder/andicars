@@ -133,7 +133,7 @@ Si esta oculto, vendido, entregado o en preparacion, no aparece en el catalogo p
 
 Controles utiles:
 
-- `Buscar`: encuentra autos por marca, modelo, version o anio.
+- `Buscar`: encuentra autos por marca, modelo, version o año.
 - `Estado`: filtra por disponible, reservado, vendido, etc.
 - `Publicacion`: filtra publicados, ocultos, visibles en catalogo, no visibles o sin foto.
 - `Orden`: ordena por mas nuevos, precio mayor, precio menor o estado.
@@ -143,8 +143,8 @@ Si intentas editar otro auto sin guardar primero, aparece una alerta para confir
 
 Campos importantes:
 
-- Marca, modelo, anio, kilometraje y precio publicado son datos obligatorios.
-- Anio, kilometraje y precio tienen que ser numeros validos.
+- Marca, modelo, año, kilometraje y precio publicado son datos obligatorios.
+- Año, kilometraje y precio tienen que ser numeros validos.
 - La foto principal se usa en el catalogo.
 - Las fotos adicionales se ven dentro de la ficha del auto.
 
@@ -171,7 +171,7 @@ Ruta de ejemplo:
 Muestra:
 
 - galeria de fotos
-- marca, modelo, version y anio
+- marca, modelo, version y año
 - precio
 - kilometraje
 - tipo, transmision y combustible
