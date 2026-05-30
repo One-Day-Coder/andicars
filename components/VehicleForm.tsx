@@ -935,10 +935,12 @@ export function VehicleForm() {
                       {vehicle.year} - {formatKm(vehicle.mileage)} - {vehicle.vehicle_type} - {vehicle.status.replace("_", " ")}
                     </p>
                   </div>
-                  {vehicle.main_photo_url ? <span className="status-badge published">Con foto</span> : <span className="status-badge">Sin foto</span>}
-                  {isOwner && (!vehicle.purchase_price_usd || Number(vehicle.purchase_price_usd) <= 0) ? (
-                    <span className="status-badge warning">Sin precio compra</span>
-                  ) : null}
+                  <div className="vehicle-row-alerts">
+                    {vehicle.main_photo_url ? <span className="status-badge published">Con foto</span> : <span className="status-badge warning strong">Sin foto</span>}
+                    {isOwner && (!vehicle.purchase_price_usd || Number(vehicle.purchase_price_usd) <= 0) ? (
+                      <span className="status-badge warning">Sin precio compra</span>
+                    ) : null}
+                  </div>
                   <strong>{formatUsd(vehicle.price_usd)}</strong>
                   <label className={`quick-status status-control status-${vehicle.status}`}>
                     Estado
