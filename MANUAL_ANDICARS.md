@@ -144,9 +144,10 @@ Si intentas editar otro auto sin guardar primero, aparece una alerta para confir
 Campos importantes:
 
 - Precio compra USD es interno. Sirve para reportes y rentabilidad; no aparece en la web publica.
+- Solo el usuario Dueno puede ver o editar el Precio compra USD desde el panel.
 - El usuario Dueno ve una alerta si algun auto no tiene precio de compra cargado.
-- Marca, modelo, año, kilometraje y precio publicado son datos obligatorios.
-- Año, kilometraje y precio tienen que ser numeros validos.
+- Marca, modelo, año, kilometraje y precio publicado son datos obligatorios. Si falta alguno, el campo queda marcado en rojo antes de guardar.
+- Año, kilometraje y precio tienen que ser numeros validos. El año debe quedar dentro de un rango realista.
 - La foto principal se usa en el catalogo.
 - Las fotos adicionales se ven dentro de la ficha del auto.
 

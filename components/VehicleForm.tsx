@@ -23,6 +23,8 @@ type FormState = {
   main_photo_url: string;
 };
 
+type ValidationErrors = Partial<Record<keyof FormState, string>>;
+
 const initialForm: FormState = {
   brand: "",
   model: "",
@@ -102,6 +104,7 @@ export function VehicleForm() {
   const [currentPhotos, setCurrentPhotos] = useState<VehiclePhoto[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [loading, setLoading] = useState(false);
   const [mainPhotoPreview, setMainPhotoPreview] = useState("");
   const [galleryPreviews, setGalleryPreviews] = useState<Array<{ name: string; url: string }>>([]);
@@ -229,6 +232,54 @@ export function VehicleForm() {
 
   function updateField(name: keyof FormState, value: string | boolean) {
     setForm((current) => ({ ...current, [name]: value }));
+    setValidationErrors((current) => {
+      if (!current[name]) {
+        return current;
+      }
+
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
+  }
+
+  function fieldClass(name: keyof FormState) {
+    return validationErrors[name] ? "field-error" : "";
+  }
+
+  function validateForm() {
+    const errors: ValidationErrors = {};
+    const year = Number(form.year);
+    const mileage = Number(form.mileage);
+    const priceUsd = Number(form.price_usd);
+    const purchasePriceUsd = Number(form.purchase_price_usd);
+    const nextYear = new Date().getFullYear() + 1;
+
+    if (!form.brand.trim()) {
+      errors.brand = "La marca es obligatoria.";
+    }
+
+    if (!form.model.trim()) {
+      errors.model = "El modelo es obligatorio.";
+    }
+
+    if (!form.year || !Number.isFinite(year) || year < 1900 || year > nextYear) {
+      errors.year = `Usa un año entre 1900 y ${nextYear}.`;
+    }
+
+    if (!form.mileage || !Number.isFinite(mileage) || mileage < 0) {
+      errors.mileage = "Revisa el kilometraje.";
+    }
+
+    if (!form.price_usd || !Number.isFinite(priceUsd) || priceUsd <= 0) {
+      errors.price_usd = "El precio publicado es obligatorio.";
+    }
+
+    if (isOwner && form.purchase_price_usd && (!Number.isFinite(purchasePriceUsd) || purchasePriceUsd < 0)) {
+      errors.purchase_price_usd = "El precio de compra no puede ser negativo.";
+    }
+
+    return errors;
   }
 
   function updatePhotoFile(file: File | null) {
@@ -297,6 +348,7 @@ export function VehicleForm() {
     setCurrentPhotos([]);
     setEditingId(null);
     setMessage("");
+    setValidationErrors({});
   }
 
   async function editVehicle(vehicle: Vehicle) {
@@ -331,6 +383,7 @@ export function VehicleForm() {
     setSavedForm(nextForm);
     setPhotoFile(null);
     setGalleryFiles([]);
+    setValidationErrors({});
     if (mainPhotoInputRef.current) {
       mainPhotoInputRef.current.value = "";
     }
@@ -517,6 +570,15 @@ export function VehicleForm() {
       return;
     }
 
+    const errors = validateForm();
+    setValidationErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      setMessage("Revisa los campos marcados en rojo antes de guardar.");
+      setLoading(false);
+      return;
+    }
+
     if (!form.brand.trim() || !form.model.trim()) {
       setMessage("Marca y modelo son obligatorios.");
       setLoading(false);
@@ -546,6 +608,10 @@ export function VehicleForm() {
       is_published: form.is_published,
       main_photo_url: form.main_photo_url || null
     };
+
+    if (!isOwner) {
+      delete (payload as Partial<Vehicle>).purchase_price_usd;
+    }
 
     try {
       if (editingId) {
@@ -595,6 +661,7 @@ export function VehicleForm() {
       }
       setCurrentPhotos([]);
       setEditingId(null);
+      setValidationErrors({});
       setMessage(editingId ? "Vehiculo actualizado correctamente." : "Vehiculo guardado correctamente.");
       await loadVehicles();
     } catch (error) {
@@ -606,7 +673,7 @@ export function VehicleForm() {
 
   return (
     <div className="admin-layout">
-      <form className="vehicle-form" onSubmit={handleSubmit}>
+      <form className="vehicle-form" onSubmit={handleSubmit} noValidate>
         <div className="wide-field form-title-row">
           <div>
             <h2>{editingId ? "Editar vehiculo" : "Agregar vehiculo"}</h2>
@@ -619,25 +686,29 @@ export function VehicleForm() {
           ) : null}
         </div>
         <div className="compact-field-grid compact-field-grid-main wide-field">
-          <label>
+          <label className={fieldClass("brand")}>
             Marca
-            <input value={form.brand} onChange={(event) => updateField("brand", event.target.value)} required />
+            <input value={form.brand} onChange={(event) => updateField("brand", event.target.value)} aria-invalid={Boolean(validationErrors.brand)} />
+            {validationErrors.brand ? <span className="field-error-message">{validationErrors.brand}</span> : null}
           </label>
-          <label>
+          <label className={fieldClass("model")}>
             Modelo
-            <input value={form.model} onChange={(event) => updateField("model", event.target.value)} required />
+            <input value={form.model} onChange={(event) => updateField("model", event.target.value)} aria-invalid={Boolean(validationErrors.model)} />
+            {validationErrors.model ? <span className="field-error-message">{validationErrors.model}</span> : null}
           </label>
           <label>
             Version
             <input value={form.version} onChange={(event) => updateField("version", event.target.value)} />
           </label>
-          <label>
+          <label className={fieldClass("year")}>
             Año
-            <input type="number" value={form.year} onChange={(event) => updateField("year", event.target.value)} required />
+            <input type="number" value={form.year} onChange={(event) => updateField("year", event.target.value)} aria-invalid={Boolean(validationErrors.year)} />
+            {validationErrors.year ? <span className="field-error-message">{validationErrors.year}</span> : null}
           </label>
-          <label>
+          <label className={fieldClass("mileage")}>
             Kilometraje
-            <input type="number" value={form.mileage} onChange={(event) => updateField("mileage", event.target.value)} required />
+            <input type="number" value={form.mileage} onChange={(event) => updateField("mileage", event.target.value)} aria-invalid={Boolean(validationErrors.mileage)} />
+            {validationErrors.mileage ? <span className="field-error-message">{validationErrors.mileage}</span> : null}
           </label>
         </div>
         <div className="compact-field-grid wide-field">
@@ -668,14 +739,23 @@ export function VehicleForm() {
           </label>
         </div>
         <div className="compact-field-grid wide-field">
-          <label>
+          <label className={fieldClass("price_usd")}>
             Precio publicado USD
-            <input type="number" value={form.price_usd} onChange={(event) => updateField("price_usd", event.target.value)} required />
+            <input type="number" value={form.price_usd} onChange={(event) => updateField("price_usd", event.target.value)} aria-invalid={Boolean(validationErrors.price_usd)} />
+            {validationErrors.price_usd ? <span className="field-error-message">{validationErrors.price_usd}</span> : null}
           </label>
-          <label>
-            Precio compra USD
-            <input type="number" value={form.purchase_price_usd} onChange={(event) => updateField("purchase_price_usd", event.target.value)} />
-          </label>
+          {isOwner ? (
+            <label className={fieldClass("purchase_price_usd")}>
+              Precio compra USD
+              <input
+                type="number"
+                value={form.purchase_price_usd}
+                onChange={(event) => updateField("purchase_price_usd", event.target.value)}
+                aria-invalid={Boolean(validationErrors.purchase_price_usd)}
+              />
+              {validationErrors.purchase_price_usd ? <span className="field-error-message">{validationErrors.purchase_price_usd}</span> : null}
+            </label>
+          ) : null}
         </div>
         <div className="compact-field-grid wide-field">
           <label>

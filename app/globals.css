@@ -788,6 +788,27 @@ textarea {
   font-weight: 600;
 }
 
+.field-error {
+  color: #991b1b;
+}
+
+.field-error input,
+.field-error select,
+.field-error textarea,
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: #dc2626;
+  background: #fef2f2;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.field-error-message {
+  color: #b91c1c;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .settings-box {
   display: grid;
   gap: 14px;
