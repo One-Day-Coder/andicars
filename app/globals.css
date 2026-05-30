@@ -664,6 +664,11 @@ textarea {
   --module-bg: #f0fdf4;
 }
 
+.summary-card-warning {
+  --module-accent: #d97706;
+  --module-bg: #fff7ed;
+}
+
 .vehicle-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1208,7 +1213,7 @@ textarea {
 
 .vehicle-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto minmax(170px, 220px) auto minmax(190px, 260px) auto;
+  grid-template-columns: minmax(0, 1fr) repeat(3, auto) minmax(170px, 220px) auto minmax(190px, 260px) auto;
   gap: 14px;
   align-items: center;
   border: 1px solid var(--line);

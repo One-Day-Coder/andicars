@@ -135,7 +135,7 @@ Controles utiles:
 
 - `Buscar`: encuentra autos por marca, modelo, version o año.
 - `Estado`: filtra por disponible, reservado, vendido, etc.
-- `Publicacion`: filtra publicados, ocultos, visibles en catalogo, no visibles o sin foto.
+- `Publicacion`: filtra publicados, ocultos, visibles en catalogo, no visibles, sin foto o sin precio compra.
 - `Orden`: ordena por mas nuevos, precio mayor, precio menor o estado.
 
 Mientras cargas o editas un vehiculo, el panel muestra `Cambios sin guardar`.
@@ -143,6 +143,8 @@ Si intentas editar otro auto sin guardar primero, aparece una alerta para confir
 
 Campos importantes:
 
+- Precio compra USD es interno. Sirve para reportes y rentabilidad; no aparece en la web publica.
+- El usuario Dueno ve una alerta si algun auto no tiene precio de compra cargado.
 - Marca, modelo, año, kilometraje y precio publicado son datos obligatorios.
 - Año, kilometraje y precio tienen que ser numeros validos.
 - La foto principal se usa en el catalogo.

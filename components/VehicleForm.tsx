@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { formatKm, formatUsd } from "@/lib/format";
-import type { Vehicle, VehiclePhoto, VehicleStatus } from "@/types/vehicle";
+import type { AdminRole, Vehicle, VehiclePhoto, VehicleStatus } from "@/types/vehicle";
 
 type FormState = {
   brand: string;
@@ -56,7 +56,8 @@ const publishedFilterOptions = [
   { value: "ocultos", label: "Ocultos" },
   { value: "catalogo", label: "Visibles en catalogo" },
   { value: "no_catalogo", label: "No visibles en catalogo" },
-  { value: "sin_foto", label: "Sin foto" }
+  { value: "sin_foto", label: "Sin foto" },
+  { value: "sin_precio_compra", label: "Sin precio compra" }
 ];
 
 const sortOptions = [
@@ -108,8 +109,10 @@ export function VehicleForm() {
   const [filterStatus, setFilterStatus] = useState("todos");
   const [filterPublished, setFilterPublished] = useState("todos");
   const [sortBy, setSortBy] = useState("recientes");
+  const [role, setRole] = useState<AdminRole | null>(null);
   const mainPhotoInputRef = useRef<HTMLInputElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
+  const isOwner = role === "owner";
 
   async function loadVehicles() {
     if (!supabase) {
@@ -132,7 +135,31 @@ export function VehicleForm() {
 
   useEffect(() => {
     loadVehicles();
+    loadRole();
   }, []);
+
+  async function loadRole() {
+    if (!supabase) {
+      return;
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user.id;
+
+    if (!userId) {
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("admin_users")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+
+    if (!error) {
+      setRole((data?.role as AdminRole | undefined) || null);
+    }
+  }
 
   useEffect(() => {
     if (!photoFile) {
@@ -178,7 +205,8 @@ export function VehicleForm() {
           (filterPublished === "ocultos" && !vehicle.is_published) ||
           (filterPublished === "catalogo" && isCatalogVisible) ||
           (filterPublished === "no_catalogo" && !isCatalogVisible) ||
-          (filterPublished === "sin_foto" && !vehicle.main_photo_url);
+          (filterPublished === "sin_foto" && !vehicle.main_photo_url) ||
+          (filterPublished === "sin_precio_compra" && isOwner && (!vehicle.purchase_price_usd || Number(vehicle.purchase_price_usd) <= 0));
 
         return matchesSearch && matchesStatus && matchesPublished;
       })
@@ -197,7 +225,7 @@ export function VehicleForm() {
 
         return new Date(second.created_at).getTime() - new Date(first.created_at).getTime();
       });
-  }, [vehicles, filterSearch, filterStatus, filterPublished, sortBy]);
+  }, [vehicles, filterSearch, filterStatus, filterPublished, sortBy, isOwner]);
 
   function updateField(name: keyof FormState, value: string | boolean) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -788,7 +816,9 @@ export function VehicleForm() {
           <label>
             Publicacion
             <select value={filterPublished} onChange={(event) => setFilterPublished(event.target.value)}>
-              {publishedFilterOptions.map((option) => (
+              {publishedFilterOptions
+                .filter((option) => option.value !== "sin_precio_compra" || isOwner)
+                .map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -826,6 +856,9 @@ export function VehicleForm() {
                     </p>
                   </div>
                   {vehicle.main_photo_url ? <span className="status-badge published">Con foto</span> : <span className="status-badge">Sin foto</span>}
+                  {isOwner && (!vehicle.purchase_price_usd || Number(vehicle.purchase_price_usd) <= 0) ? (
+                    <span className="status-badge warning">Sin precio compra</span>
+                  ) : null}
                   <strong>{formatUsd(vehicle.price_usd)}</strong>
                   <label className="quick-status">
                     Estado

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import type { Lead, Vehicle } from "@/types/vehicle";
+import type { AdminRole, Lead, Vehicle } from "@/types/vehicle";
 
 type Summary = {
   totalVehicles: number;
@@ -12,6 +12,7 @@ type Summary = {
   publishedButNotVisibleVehicles: number;
   availableVehicles: number;
   reservedVehicles: number;
+  missingPurchasePriceVehicles: number;
   totalLeads: number;
   newLeads: number;
   activeLeads: number;
@@ -25,6 +26,7 @@ const initialSummary: Summary = {
   publishedButNotVisibleVehicles: 0,
   availableVehicles: 0,
   reservedVehicles: 0,
+  missingPurchasePriceVehicles: 0,
   totalLeads: 0,
   newLeads: 0,
   activeLeads: 0
@@ -32,6 +34,7 @@ const initialSummary: Summary = {
 
 export function AdminSummary() {
   const [summary, setSummary] = useState<Summary>(initialSummary);
+  const [role, setRole] = useState<AdminRole | null>(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -43,9 +46,15 @@ export function AdminSummary() {
     }
 
     setLoading(true);
-    const [vehiclesResult, leadsResult] = await Promise.all([
-      supabase.from("vehicles").select("status, is_published"),
-      supabase.from("leads").select("status")
+    const sessionResult = await supabase.auth.getSession();
+    const userId = sessionResult.data.session?.user.id;
+
+    const [vehiclesResult, leadsResult, roleResult] = await Promise.all([
+      supabase.from("vehicles").select("status, is_published, purchase_price_usd"),
+      supabase.from("leads").select("status"),
+      userId
+        ? supabase.from("admin_users").select("role").eq("user_id", userId).single()
+        : Promise.resolve({ data: null, error: null })
     ]);
 
     if (vehiclesResult.error) {
@@ -60,7 +69,15 @@ export function AdminSummary() {
       return;
     }
 
-    const vehicles = (vehiclesResult.data || []) as Pick<Vehicle, "status" | "is_published">[];
+    if (roleResult.error) {
+      setMessage(`No pude cargar tu rol: ${roleResult.error.message}`);
+      setLoading(false);
+      return;
+    }
+
+    setRole((roleResult.data?.role as AdminRole | undefined) || null);
+
+    const vehicles = (vehiclesResult.data || []) as Pick<Vehicle, "status" | "is_published" | "purchase_price_usd">[];
     const leads = (leadsResult.data || []) as Pick<Lead, "status">[];
 
     setSummary({
@@ -71,6 +88,7 @@ export function AdminSummary() {
       publishedButNotVisibleVehicles: vehicles.filter((vehicle) => vehicle.is_published && !["disponible", "reservado"].includes(vehicle.status)).length,
       availableVehicles: vehicles.filter((vehicle) => vehicle.status === "disponible").length,
       reservedVehicles: vehicles.filter((vehicle) => vehicle.status === "reservado").length,
+      missingPurchasePriceVehicles: vehicles.filter((vehicle) => !vehicle.purchase_price_usd || Number(vehicle.purchase_price_usd) <= 0).length,
       totalLeads: leads.length,
       newLeads: leads.filter((lead) => lead.status === "nuevo").length,
       activeLeads: leads.filter((lead) => ["contactado", "interesado", "no_responde", "negociando", "reservo"].includes(lead.status)).length
@@ -124,6 +142,13 @@ export function AdminSummary() {
           <strong>{summary.activeLeads}</strong>
           <p>Contactados o negociando</p>
         </article>
+        {role === "owner" ? (
+          <article className="summary-card summary-card-warning">
+            <span>Falta costo interno</span>
+            <strong>{summary.missingPurchasePriceVehicles}</strong>
+            <p>Autos sin precio de compra</p>
+          </article>
+        ) : null}
       </div>
     </section>
   );
