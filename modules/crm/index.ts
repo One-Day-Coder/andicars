@@ -5,5 +5,8 @@ export * from "./queries";
 export * from "./services/closeLead";
 export * from "./services/createLead";
 export * from "./services/createLeadNote";
+export * from "./services/getLeads";
+export * from "./services/markLeadAsLost";
+export * from "./services/reactivateLead";
 export * from "./services/updateLeadStatus";
 export type * from "./types";
