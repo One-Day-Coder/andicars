@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Vehicle } from "@/modules/vehicles/types";
 
 export type CreateVehicleInput = Omit<Vehicle, "id" | "created_at" | "main_photo_url"> & {
+  company_id: string;
   main_photo_url?: string | null;
 };
 

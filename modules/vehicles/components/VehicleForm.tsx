@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { formatKm, formatUsd } from "@/lib/format";
 import { fuelOptions, transmissionOptions, vehicleStatusOptions, vehicleTypeOptions } from "@/modules/vehicles/constants";
-import type { AdminRole } from "@/modules/core";
+import { getCurrentAdminContext, type AdminRole } from "@/modules/core";
 import type { Vehicle, VehiclePhoto, VehicleStatus } from "@/modules/vehicles/types";
 
 type FormState = {
@@ -138,25 +138,10 @@ export function VehicleForm() {
   }, []);
 
   async function loadRole() {
-    if (!supabase) {
-      return;
-    }
+    const { context } = await getCurrentAdminContext(supabase);
 
-    const { data: sessionData } = await supabase.auth.getSession();
-    const userId = sessionData.session?.user.id;
-
-    if (!userId) {
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("admin_users")
-      .select("role")
-      .eq("user_id", userId)
-      .single();
-
-    if (!error) {
-      setRole((data?.role as AdminRole | undefined) || null);
+    if (context) {
+      setRole(context.role);
     }
   }
 
@@ -420,7 +405,7 @@ export function VehicleForm() {
     return data.publicUrl;
   }
 
-  async function uploadGalleryPhotos(vehicleId: string) {
+  async function uploadGalleryPhotos(vehicleId: string, companyId: string) {
     if (!supabase || galleryFiles.length === 0) {
       return;
     }
@@ -447,6 +432,7 @@ export function VehicleForm() {
 
       uploadedRows.push({
         vehicle_id: vehicleId,
+        company_id: companyId,
         url: data.publicUrl,
         sort_order: currentPhotos.length + index + 1
       });
@@ -615,7 +601,20 @@ export function VehicleForm() {
     }
 
     try {
+      const { context, errorMessage } = await getCurrentAdminContext(supabase);
+
+      if (!context) {
+        throw new Error(errorMessage || "No se pudo obtener la empresa del usuario.");
+      }
+
       if (editingId) {
+        const editingVehicle = vehicles.find((vehicle) => vehicle.id === editingId);
+        const vehicleCompanyId = editingVehicle?.company_id;
+
+        if (!vehicleCompanyId) {
+          throw new Error("El vehiculo no tiene empresa asignada. Revisa el registro antes de agregar fotos.");
+        }
+
         const publicUrl = await uploadMainPhoto(editingId);
         const updatePayload = publicUrl ? { ...payload, main_photo_url: publicUrl } : payload;
         const { error } = await supabase.from("vehicles").update(updatePayload).eq("id", editingId);
@@ -624,9 +623,13 @@ export function VehicleForm() {
           throw new Error(error.message);
         }
 
-        await uploadGalleryPhotos(editingId);
+        await uploadGalleryPhotos(editingId, vehicleCompanyId);
       } else {
-        const { data, error } = await supabase.from("vehicles").insert(payload).select("id").single();
+        const { data, error } = await supabase
+          .from("vehicles")
+          .insert({ ...payload, company_id: context.companyId })
+          .select("id")
+          .single();
 
         if (error) {
           throw new Error(error.message);
@@ -646,7 +649,7 @@ export function VehicleForm() {
             }
           }
 
-          await uploadGalleryPhotos(data.id);
+          await uploadGalleryPhotos(data.id, context.companyId);
         }
       }
 

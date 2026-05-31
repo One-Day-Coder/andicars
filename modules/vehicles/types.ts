@@ -8,6 +8,7 @@ export type VehicleStatus =
 
 export type Vehicle = {
   id: string;
+  company_id?: string | null;
   brand: string;
   model: string;
   version: string | null;
@@ -29,9 +30,9 @@ export type Vehicle = {
 
 export type VehiclePhoto = {
   id: string;
+  company_id?: string | null;
   vehicle_id: string;
   url: string;
   sort_order: number;
   created_at: string;
 };
-
