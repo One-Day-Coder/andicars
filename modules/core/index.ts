@@ -6,4 +6,5 @@ export { SiteHeader } from "./components/SiteHeader";
 export * from "./constants";
 export * from "./module-registry";
 export * from "./permissions";
+export * from "./services/getCurrentAdminContext";
 export type * from "./types";
