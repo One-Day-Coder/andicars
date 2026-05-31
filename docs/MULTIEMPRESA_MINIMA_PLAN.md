@@ -221,3 +221,37 @@ No implementar multiempresa completa de golpe.
 Primero dejar documentado el plan.
 
 Luego crear una migracion SQL revisable para `companies`, `company_modules` y empresa default.
+
+## 15. Estado posterior a Fase 1 y Fase 2
+
+Fase 1 y Fase 2 ya fueron ejecutadas en Supabase y validadas correctamente.
+
+Resumen:
+
+- Fase 1 creo `public.companies` y `public.company_modules`.
+- Fase 1 creo la empresa default `AndiCars` con slug `andicars`.
+- Fase 1 creo los modulos default activos para AndiCars.
+- Fase 2 agrego `company_id` nullable en las tablas actuales candidatas.
+- Fase 2 asocio los datos actuales a la empresa default AndiCars.
+- Las validaciones de `company_id is null` dieron 0 en todas las tablas revisadas.
+- Las validaciones cruzadas de relaciones dieron 0 inconsistencias.
+- La app abrio correctamente despues de Fase 2.
+
+Detalle completo:
+
+- `docs/MULTIEMPRESA_MINIMA_ESTADO.md`
+
+Proximo paso recomendado:
+
+```txt
+Fase 3: ajustar codigo para que nuevas altas usen company_id
+```
+
+No avanzar todavia con:
+
+- `company_id not null`.
+- Foreign keys hacia `companies`.
+- RLS por empresa en tablas existentes.
+- Policies multiempresa.
+- Dominios por empresa.
+- Planes pagos o subscriptions.
