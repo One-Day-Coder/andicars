@@ -14,6 +14,7 @@ type FormState = {
   vehicle_type: string;
   transmission: string;
   fuel: string;
+  current_location: string;
   price_usd: string;
   purchase_price_usd: string;
   color: string;
@@ -34,6 +35,7 @@ const initialForm: FormState = {
   vehicle_type: "Sedan",
   transmission: "Manual",
   fuel: "Nafta",
+  current_location: "",
   price_usd: "",
   purchase_price_usd: "",
   color: "#0f766e",
@@ -109,6 +111,7 @@ export function VehicleForm() {
   const [mainPhotoPreview, setMainPhotoPreview] = useState("");
   const [galleryPreviews, setGalleryPreviews] = useState<Array<{ name: string; url: string }>>([]);
   const [filterSearch, setFilterSearch] = useState("");
+  const [filterLocation, setFilterLocation] = useState("");
   const [filterStatus, setFilterStatus] = useState("todos");
   const [filterPublished, setFilterPublished] = useState("todos");
   const [sortBy, setSortBy] = useState("recientes");
@@ -195,11 +198,14 @@ export function VehicleForm() {
 
   const filteredVehicles = useMemo(() => {
     const search = filterSearch.trim().toLowerCase();
+    const locationSearch = filterLocation.trim().toLowerCase();
 
     return vehicles
       .filter((vehicle) => {
         const title = `${vehicle.brand} ${vehicle.model} ${vehicle.version || ""} ${vehicle.year}`.toLowerCase();
+        const location = (vehicle.current_location || "").toLowerCase();
         const matchesSearch = !search || title.includes(search);
+        const matchesLocation = !locationSearch || location.includes(locationSearch);
         const matchesStatus = filterStatus === "todos" || vehicle.status === filterStatus;
         const isCatalogVisible = vehicle.is_published && ["disponible", "reservado"].includes(vehicle.status);
         const matchesPublished =
@@ -211,7 +217,7 @@ export function VehicleForm() {
           (filterPublished === "sin_foto" && !vehicle.main_photo_url) ||
           (filterPublished === "sin_precio_compra" && isOwner && (!vehicle.purchase_price_usd || Number(vehicle.purchase_price_usd) <= 0));
 
-        return matchesSearch && matchesStatus && matchesPublished;
+        return matchesSearch && matchesLocation && matchesStatus && matchesPublished;
       })
       .sort((first, second) => {
         if (sortBy === "precio_mayor") {
@@ -228,7 +234,7 @@ export function VehicleForm() {
 
         return new Date(second.created_at).getTime() - new Date(first.created_at).getTime();
       });
-  }, [vehicles, filterSearch, filterStatus, filterPublished, sortBy, isOwner]);
+  }, [vehicles, filterSearch, filterLocation, filterStatus, filterPublished, sortBy, isOwner]);
 
   function updateField(name: keyof FormState, value: string | boolean) {
     setForm((current) => ({ ...current, [name]: value }));
@@ -369,6 +375,7 @@ export function VehicleForm() {
       vehicle_type: vehicle.vehicle_type || "Sedan",
       transmission: vehicle.transmission || "Manual",
       fuel: vehicle.fuel || "Nafta",
+      current_location: vehicle.current_location || "",
       price_usd: String(vehicle.price_usd || ""),
       purchase_price_usd: vehicle.purchase_price_usd ? String(vehicle.purchase_price_usd) : "",
       color: vehicle.color || "#0f766e",
@@ -600,6 +607,7 @@ export function VehicleForm() {
       vehicle_type: form.vehicle_type,
       transmission: form.transmission,
       fuel: form.fuel || null,
+      current_location: form.current_location.trim() || null,
       price_usd: Number(form.price_usd),
       purchase_price_usd: form.purchase_price_usd ? Number(form.purchase_price_usd) : null,
       color: form.color,
@@ -736,6 +744,10 @@ export function VehicleForm() {
               <option>Hibrido</option>
               <option>Electrico</option>
             </select>
+          </label>
+          <label>
+            Ubicacion actual
+            <input value={form.current_location} onChange={(event) => updateField("current_location", event.target.value)} placeholder="Ej: Agencia Centro" />
           </label>
         </div>
         <div className="compact-field-grid wide-field">
@@ -883,6 +895,10 @@ export function VehicleForm() {
             <input value={filterSearch} onChange={(event) => setFilterSearch(event.target.value)} placeholder="Marca, modelo, version o año" />
           </label>
           <label>
+            Ubicacion
+            <input value={filterLocation} onChange={(event) => setFilterLocation(event.target.value)} placeholder="Agencia, deposito o zona" />
+          </label>
+          <label>
             Estado
             <select value={filterStatus} onChange={(event) => setFilterStatus(event.target.value)}>
               <option value="todos">Todos</option>
@@ -934,6 +950,7 @@ export function VehicleForm() {
                     <p>
                       {vehicle.year} - {formatKm(vehicle.mileage)} - {vehicle.vehicle_type} - {vehicle.status.replace("_", " ")}
                     </p>
+                    {vehicle.current_location ? <p className="vehicle-location">Ubicacion: {vehicle.current_location}</p> : null}
                   </div>
                   <div className="vehicle-row-alerts">
                     {vehicle.main_photo_url ? <span className="status-badge published">Con foto</span> : <span className="status-badge warning strong">Sin foto</span>}

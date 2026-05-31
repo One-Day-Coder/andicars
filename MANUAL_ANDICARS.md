@@ -95,6 +95,12 @@ database/admin-users-management.sql
 
 Permite que un usuario Dueno administre usuarios internos desde el panel.
 
+```text
+database/vehicle-current-location.sql
+```
+
+Agrega el campo `Ubicacion actual` a cada vehiculo para saber en que agencia, deposito o sucursal se encuentra.
+
 ## 4. Vehiculos
 
 Ruta:
@@ -110,6 +116,7 @@ Sirve para:
 - subir foto principal
 - subir fotos adicionales
 - ver una vista previa de las fotos antes de guardar
+- cargar ubicacion actual del vehiculo
 - publicar u ocultar autos
 - cambiar estado
 - eliminar autos
@@ -134,6 +141,7 @@ Si esta oculto, vendido, entregado o en preparacion, no aparece en el catalogo p
 Controles utiles:
 
 - `Buscar`: encuentra autos por marca, modelo, version o año.
+- `Ubicacion`: filtra autos por agencia, sucursal, deposito o zona escrita en `Ubicacion actual`.
 - `Estado`: filtra por disponible, reservado, vendido, etc.
 - `Publicacion`: filtra publicados, ocultos, visibles en catalogo, no visibles, sin foto o sin precio compra.
 - `Orden`: ordena por mas nuevos, precio mayor, precio menor o estado.
@@ -146,6 +154,7 @@ Campos importantes:
 - Precio compra USD es interno. Sirve para reportes y rentabilidad; no aparece en la web publica.
 - Solo el usuario Dueno puede ver o editar el Precio compra USD desde el panel.
 - El usuario Dueno ve una alerta si algun auto no tiene precio de compra cargado.
+- Ubicacion actual es interna. Sirve para saber donde esta fisicamente el vehiculo y para filtrar el stock del panel.
 - Marca, modelo, año, kilometraje y precio publicado son datos obligatorios. Si falta alguno, el campo queda marcado en rojo antes de guardar.
 - Año, kilometraje y precio tienen que ser numeros validos. El año debe quedar dentro de un rango realista.
 - La foto principal se usa en el catalogo.

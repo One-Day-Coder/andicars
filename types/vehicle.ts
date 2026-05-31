@@ -16,6 +16,7 @@ export type Vehicle = {
   vehicle_type: string;
   transmission: string;
   fuel: string | null;
+  current_location?: string | null;
   price_usd: number;
   purchase_price_usd: number | null;
   color: string | null;

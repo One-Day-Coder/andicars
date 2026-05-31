@@ -22,6 +22,7 @@ create table if not exists public.vehicles (
   vehicle_type text not null,
   transmission text not null,
   fuel text,
+  current_location text,
   price_usd numeric(12, 2) not null,
   purchase_price_usd numeric(12, 2),
   color text default '#0f766e',

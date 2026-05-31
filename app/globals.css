@@ -743,7 +743,7 @@ textarea {
 }
 
 .vehicle-filters {
-  grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(150px, 220px));
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.75fr) repeat(3, minmax(140px, 200px));
   margin-top: 16px;
   border: 1px solid #dbe4ef;
   border-left: 5px solid #64748b;
@@ -1319,6 +1319,12 @@ textarea[aria-invalid="true"] {
 
 .vehicle-row p {
   color: var(--muted);
+}
+
+.vehicle-row .vehicle-location {
+  color: var(--teal-dark);
+  font-weight: 800;
+  margin-top: 4px;
 }
 
 .vehicle-row strong {
