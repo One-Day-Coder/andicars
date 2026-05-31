@@ -4,95 +4,114 @@
 
 AndiCars sigue siendo una sola aplicacion Next.js, con una sola base Supabase y un solo deploy en Vercel.
 
-La separacion en `modules/` no convierte el proyecto en SaaS ni lo divide en varios repositorios. Solo ordena el codigo para que cada area del negocio tenga su propio lugar.
-
-## Por que separar en modulos
-
-Separar por modulos ayuda a:
-
-- encontrar mas rapido donde vive cada parte del sistema
-- evitar que `components/` y `lib/` crezcan sin orden
-- preparar el proyecto para vender o activar partes en el futuro
-- mantener `app/` como capa de rutas de Next.js
-- reducir el riesgo de tocar una seccion y romper otra
+La carpeta `modules/` ordena el codigo por areas del negocio. No implementa SaaS, multiempresa, planes pagos ni tablas `companies`.
 
 ## Capas actuales
 
 `app/`
 
-Rutas de Next.js. No deberia contener logica de negocio pesada. Importa componentes desde `modules/`.
+Solo rutas de Next.js. Las paginas deben ser delgadas y consumir componentes/servicios desde `modules/`.
 
 `modules/`
 
-Codigo organizado por dominio: stock, CRM, gastos, ventas, reportes, configuracion, usuarios y web publica.
+Codigo organizado por dominio. Cada modulo es dueño de sus componentes, tipos, constantes, queries y servicios.
 
 `lib/`
 
-Infraestructura compartida: Supabase, formatos y helpers genericos.
+Infraestructura compartida: clientes Supabase, formateadores y helpers genericos. No debe contener logica especifica de vehiculos, CRM, ventas, gastos o usuarios.
 
 `database/`
 
-SQL de Supabase. En esta etapa no se cambiaron reglas RLS ni se agrego multiempresa.
+Scripts SQL de Supabase. En esta etapa no se cambiaron reglas RLS ni se agrego multiempresa.
+
+`components/`
+
+Carpeta sin componentes activos de dominio. Tiene un README para recordar que los componentes deben vivir en `modules/`.
 
 `types/`
 
-Compatibilidad temporal. Los tipos especificos ya empiezan a vivir dentro de cada modulo.
+Reservado para tipos globales reales. Los tipos de dominio viven dentro de cada modulo.
 
 ## Modulos actuales
 
-Core
+`modules/core`
 
-Base comun: permisos, roles, guardas de acceso, header, dashboard y registro de modulos.
+Permisos, roles, guardas de acceso, header, resumen inicial y registro de modulos.
 
-Vehicles
+`modules/vehicles`
 
-Stock de vehiculos, alta/edicion, fotos, estados, filtros, catalogo publico y queries de vehiculos.
+Stock, alta/edicion de autos, fotos, estados, filtros, catalogo publico, ficha del auto y queries de vehiculos.
 
-CRM
+`modules/crm`
 
-Consultas, leads, notas internas, prioridades, proximos contactos, cierres y reactivaciones.
+Consultas, leads, notas internas, prioridades, proximos contactos, cierres, reactivaciones y formulario de consulta.
 
-Expenses
+`modules/expenses`
 
-Gastos por vehiculo, categorias, monedas y calculos de inversion.
+Gastos por vehiculo, categorias, monedas, filtros y calculos de inversion.
 
-Sales
+`modules/sales`
 
 Reservas, senas, ventas, entregas, cancelaciones y saldos.
 
-Reports
+`modules/reports`
 
 Resumen de stock, inversion, gastos, ventas y rentabilidad.
 
-Settings
+`modules/settings`
 
-Datos generales, WhatsApp, email, zona y proteccion anti-spam.
+Datos generales, WhatsApp, email, zona/direccion, mensaje automatico y anti-spam.
 
-Users
+`modules/users`
 
-Usuarios internos, apodos, roles y accesos del panel.
+Usuarios internos, apodos, roles y accesos.
 
-Public Site
+`modules/public-site`
 
-Inicio, datos publicos, CTA y componentes publicos que no pertenecen solamente al stock.
+Componentes publicos generales: contacto, WhatsApp y piezas comerciales no exclusivas de vehiculos.
 
-Documents
+`modules/documents`
 
 Placeholder futuro para documentacion vehicular.
 
-Trade-ins
+`modules/trade-ins`
 
 Placeholder futuro para permutas.
 
-## Modulo interno vs producto vendible
+## Como Trabajar Por Modulo
 
-Un modulo interno es una carpeta tecnica dentro de la misma app.
+Si el cambio es de CRM, revisar primero `modules/crm`.
 
-Un producto vendible seria una combinacion comercial de modulos. Por ejemplo, vender solo CRM o vender CRM + stock. Eso todavia no esta implementado como plan comercial ni como SaaS.
+Si el cambio es de vehiculos, revisar primero `modules/vehicles`.
 
-## Preparacion para SaaS futuro
+Si el cambio es de gastos, revisar primero `modules/expenses`.
 
-Cuando llegue el momento de convertir AndiCars en multiempresa, habria que sumar otra etapa:
+Si el cambio es de ventas, revisar primero `modules/sales`.
+
+Si el cambio es de reportes, revisar primero `modules/reports`.
+
+Si el cambio es de permisos, login, roles o navegacion, revisar `modules/core`.
+
+Si el cambio es de configuracion editable, revisar `modules/settings`.
+
+Si el cambio es de usuarios internos, revisar `modules/users`.
+
+Si el cambio es de textos publicos, contacto o home comercial, revisar `modules/public-site`.
+
+## Reglas De Imports
+
+- `app/` puede importar desde `modules/` y desde `lib/` para infraestructura.
+- `modules/*` puede importar desde `lib/` solo infraestructura generica.
+- `modules/*` puede importar desde `modules/core` para roles y permisos.
+- `modules/crm` no debe depender obligatoriamente de `modules/vehicles`.
+- `modules/vehicles` no debe depender de `modules/crm`.
+- `modules/reports` puede leer de varios modulos porque consolida informacion.
+- `lib/` no debe importar desde modulos de dominio.
+- Evitar dependencias circulares.
+
+## Preparacion Para SaaS Futuro
+
+Cuando llegue el momento de convertir AndiCars en multiempresa, habria que hacer otra etapa separada:
 
 - tabla `companies`
 - columna `company_id` en tablas principales
@@ -103,5 +122,4 @@ Cuando llegue el momento de convertir AndiCars en multiempresa, habria que sumar
 - configuraciones por empresa
 - migracion cuidada de datos actuales
 
-Eso no se implementa en esta etapa para no romper la base actual.
-
+Eso no se implementa en esta etapa para no tocar la base actual.

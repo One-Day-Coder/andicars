@@ -8,90 +8,89 @@ No significa que ya esten vendidos por separado ni que exista multiempresa. Es u
 
 Producto enfocado en seguimiento comercial.
 
-Modulos incluidos:
+Modulos base:
 
 - core
 - crm
+
+Modulos recomendados:
+
 - settings
 - users
 
-Modulos opcionales:
+Modulo opcional:
 
 - vehicles
-- public_site
 
-Dependencias tecnicas:
+No debe depender de:
 
-- Supabase Auth
+- expenses
+- sales
+- reports
+- documents
+- trade-ins
+
+Tablas principales:
+
 - `admin_users`
 - `leads`
 - `lead_notes`
 - `app_settings`
 
-Pantallas:
-
-- `/login`
-- `/admin`
-- `/admin/consultas`
-- `/admin/configuracion`
-- `/admin/usuarios`
-
 ## AndiStock
 
 Producto enfocado en stock y catalogo de vehiculos.
 
-Modulos incluidos:
+Modulos base:
 
 - core
 - vehicles
-- public_site
+- public-site
+
+Modulos recomendados:
+
 - settings
 - users
 
-Modulos opcionales:
+Modulo opcional:
 
 - crm
+
+No debe depender de:
+
 - expenses
+- sales
+- reports
 
-Dependencias tecnicas:
+Tablas principales:
 
-- Supabase Auth
 - `vehicles`
 - `vehicle_photos`
 - `app_settings`
-
-Pantallas:
-
-- `/`
-- `/autos`
-- `/autos/[id]`
-- `/admin`
-- `/admin/vehiculos`
-- `/admin/configuracion`
-- `/admin/usuarios`
+- `admin_users`
 
 ## AndiCars Pro
 
-Producto operativo para agencias que necesitan stock, CRM, gastos y ventas.
+Producto operativo para agencias que necesitan stock, CRM, gastos, ventas y reportes.
 
 Modulos incluidos:
 
 - core
 - vehicles
+- public-site
 - crm
 - expenses
 - sales
 - reports
 - settings
 - users
-- public_site
 
 Modulos opcionales:
 
 - documents
-- trade_ins
+- trade-ins
 
-Dependencias tecnicas:
+Tablas principales:
 
 - `vehicles`
 - `vehicle_photos`
@@ -102,10 +101,6 @@ Dependencias tecnicas:
 - `app_settings`
 - `admin_users`
 
-Pantallas:
-
-- todas las pantallas actuales del panel y web publica
-
 ## AndiCars Full
 
 Producto completo futuro para agencias con gestion documental y permutas.
@@ -114,23 +109,17 @@ Modulos incluidos:
 
 - core
 - vehicles
+- public-site
 - crm
 - expenses
 - sales
 - reports
 - settings
 - users
-- public_site
 - documents
-- trade_ins
+- trade-ins
 
-Modulos opcionales:
-
-- integraciones externas
-- automatizaciones
-- reportes avanzados
-
-Dependencias tecnicas futuras:
+Dependencias futuras:
 
 - tablas de documentacion
 - tablas de permutas
@@ -138,8 +127,6 @@ Dependencias tecnicas futuras:
 - alertas documentales
 - permisos por empresa si se convierte en SaaS
 
-Pantallas futuras:
+## Nota Importante
 
-- `/admin/documentacion`
-- `/admin/permutas`
-- reportes documentales y de permutas
+Separar productos comercialmente no significa agregar multiempresa ahora. Primero conviene mantener la app actual estable y modular. La etapa SaaS debe planificarse aparte.

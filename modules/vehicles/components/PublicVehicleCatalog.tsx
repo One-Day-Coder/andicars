@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { vehicleCardSelect } from "@/modules/vehicles/queries";
+import { getPublicVehicles } from "@/modules/vehicles/services/getPublicVehicles";
 import type { Vehicle } from "@/modules/vehicles/types";
 import { VehicleCard } from "./VehicleCard";
 
@@ -17,26 +17,17 @@ export function PublicVehicleCatalog({ initialVehicles, initialError }: PublicVe
   const [loading, setLoading] = useState(false);
 
   async function loadVehicles() {
-    if (!supabase) {
-      return;
-    }
-
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("vehicles")
-      .select(vehicleCardSelect)
-      .eq("is_published", true)
-      .in("status", ["disponible", "reservado"])
-      .order("created_at", { ascending: false });
+    const { vehicles: nextVehicles, errorMessage } = await getPublicVehicles(supabase, initialVehicles);
 
-    if (error) {
-      setErrorMessage(error.message);
+    if (errorMessage) {
+      setErrorMessage(errorMessage);
       setLoading(false);
       return;
     }
 
-    setVehicles(data || []);
+    setVehicles(nextVehicles);
     setErrorMessage(null);
     setLoading(false);
   }

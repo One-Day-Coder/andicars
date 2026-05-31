@@ -2,19 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { defaultSettings, getSettings } from "@/modules/settings/services/getSettings";
+import { updateSettings } from "@/modules/settings/services/updateSettings";
 import type { AppSettings } from "@/modules/settings/types";
-
-const defaultSettings: AppSettings = {
-  id: true,
-  agency_name: "AndiCars",
-  whatsapp_number: "5491112345678",
-  whatsapp_message_template: "Hola AndiCars, quiero consultar por el {vehicle}.",
-  contact_email: "",
-  area: "",
-  lead_spam_protection_enabled: false,
-  lead_spam_window_hours: 24,
-  updated_at: ""
-};
 
 function onlyNumbers(value: string) {
   return value.replace(/\D/g, "");
@@ -26,23 +16,14 @@ export function SettingsPanel() {
   const [loading, setLoading] = useState(false);
 
   async function loadSettings() {
-    if (!supabase) {
-      setMessage("Falta configurar Supabase.");
+    const { settings: nextSettings, errorMessage } = await getSettings(supabase);
+
+    if (errorMessage) {
+      setMessage(`No pude cargar configuracion: ${errorMessage}`);
       return;
     }
 
-    const { data, error } = await supabase
-      .from("app_settings")
-      .select("*")
-      .eq("id", true)
-      .single();
-
-    if (error) {
-      setMessage(`No pude cargar configuracion: ${error.message}`);
-      return;
-    }
-
-    setSettings(data || defaultSettings);
+    setSettings(nextSettings);
     setMessage("");
   }
 
@@ -68,16 +49,7 @@ export function SettingsPanel() {
     setLoading(true);
     setMessage("");
 
-    const { error } = await supabase.from("app_settings").upsert({
-      id: true,
-      agency_name: settings.agency_name || "AndiCars",
-      whatsapp_number: onlyNumbers(settings.whatsapp_number),
-      whatsapp_message_template: settings.whatsapp_message_template || defaultSettings.whatsapp_message_template,
-      contact_email: settings.contact_email || null,
-      area: settings.area || null,
-      lead_spam_protection_enabled: settings.lead_spam_protection_enabled,
-      lead_spam_window_hours: Number(settings.lead_spam_window_hours || 24)
-    });
+    const { error } = await updateSettings(supabase, settings);
 
     if (error) {
       setMessage(`No se pudo guardar: ${error.message}`);

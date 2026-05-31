@@ -1,36 +1,13 @@
 import Link from "next/link";
 import { PasswordRecoveryRedirect, SiteHeader } from "@/modules/core";
 import { PublicContactInfo } from "@/modules/public-site";
-import { demoVehicles, VehicleCard, vehicleCardSelect } from "@/modules/vehicles";
+import { demoVehicles, getFeaturedVehicles, VehicleCard } from "@/modules/vehicles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Vehicle } from "@/modules/vehicles";
 
 export const dynamic = "force-dynamic";
 
-async function getFeaturedVehicles(): Promise<Vehicle[]> {
-  const supabase = createSupabaseServerClient();
-
-  if (!supabase) {
-    return demoVehicles;
-  }
-
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select(vehicleCardSelect)
-    .eq("is_published", true)
-    .in("status", ["disponible", "reservado"])
-    .order("created_at", { ascending: false })
-    .limit(3);
-
-  if (error) {
-    return demoVehicles;
-  }
-
-  return data || [];
-}
-
 export default async function HomePage() {
-  const vehicles = await getFeaturedVehicles();
+  const vehicles = await getFeaturedVehicles(createSupabaseServerClient(), demoVehicles, 3);
 
   return (
     <>

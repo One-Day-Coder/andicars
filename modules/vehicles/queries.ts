@@ -8,6 +8,7 @@ export const vehicleCardSelect = `
   vehicle_type,
   transmission,
   fuel,
+  current_location,
   price_usd,
   purchase_price_usd,
   color,

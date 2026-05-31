@@ -1,99 +1,68 @@
 # AndiCars
 
-Modulo nuevo agregado: para activar ventas, reservas y senas, ejecutar `database/sales.sql` y luego entrar a `http://localhost:3000/admin/ventas`.
+Sitio web y panel interno para una agencia de compra y venta de autos.
 
-Sitio web y base inicial para una agencia de compra y venta de autos.
+La app actual esta construida con Next.js + Supabase y se despliega en Vercel.
 
-La base nueva esta preparada con Next.js + Supabase.
-Lee primero `PASO_A_PASO.md`.
-Para entender como usar cada modulo, lee `MANUAL_ANDICARS.md`.
+## Estructura Actual
 
-## Web vieja
+- `app/`: rutas de Next.js.
+- `modules/`: arquitectura modular por area del negocio.
+- `lib/`: infraestructura compartida, Supabase y formateadores genericos.
+- `database/`: scripts SQL de Supabase.
+- `legacy/`: version vieja estatica conservada como referencia.
 
-Abri `index.html` con doble clic en el navegador. No necesita instalar nada.
+Para entender la arquitectura, leer `ARCHITECTURE_MODULAR.md`.
 
-## App nueva
+Para entender productos futuros posibles, leer `PRODUCT_MODULES.md`.
 
-Cuando tengas Node.js instalado:
+Para entender como usar el sistema, leer `MANUAL_ANDICARS.md`.
+
+## Instalar
 
 ```bash
 npm install
+```
+
+## Ejecutar En Local
+
+```bash
 npm run dev
 ```
 
-Despues abri:
+Despues abrir:
 
 ```text
 http://localhost:3000
 ```
 
-## Como cargar vehiculos
+## Validar
 
-1. Abri `admin.html`.
-2. Completa los datos del vehiculo.
-3. Toca `Guardar vehiculo`.
-4. Volve a `index.html` y el catalogo va a mostrar lo cargado.
-
-Importante: por ahora los datos se guardan en el navegador de esta computadora.
-Para publicarlo en internet y cargar desde cualquier lugar, el siguiente paso es
-conectarlo a una base de datos real como Supabase o Firebase.
-
-En la app nueva, el panel sera:
-
-```text
-http://localhost:3000/admin/vehiculos
+```bash
+npm run lint
+npm run build
 ```
 
-## Fotos de vehiculos
+## Rutas Principales
 
-Para activar subida de fotos en Supabase, ejecutar:
+- `/`
+- `/autos`
+- `/autos/[id]`
+- `/admin`
+- `/admin/vehiculos`
+- `/admin/consultas`
+- `/admin/gastos`
+- `/admin/ventas`
+- `/admin/reportes`
+- `/admin/configuracion`
+- `/admin/usuarios`
 
-```text
-database/storage.sql
-```
+## Supabase
 
-## Consultas
+Los scripts SQL estan en `database/`. Ejecutarlos solo cuando una mejora lo requiera y siempre revisando el archivo antes.
 
-Las consultas entran desde la ficha de cada auto y se ven en:
+En esta etapa no se implemento multiempresa, no hay `companies`, no hay `company_id` y no hay planes pagos.
 
-```text
-http://localhost:3000/admin/consultas
-```
+## Version Vieja
 
-## Gastos
-
-Para activar gastos por vehiculo en Supabase, ejecutar:
-
-```text
-database/vehicle-expenses.sql
-```
-
-Luego usar:
-
-```text
-http://localhost:3000/admin/gastos
-```
-
-## Roles internos
-
-Para preparar permisos de usuarios, ejecutar:
-
-```text
-database/user-roles.sql
-```
-
-## Donde cambiar cosas importantes
-
-- `script.js`: autos del catalogo, precios, kilometraje y telefono de WhatsApp.
-- `admin.html` y `admin.js`: panel de carga de vehiculos.
-- `index.html`: textos principales, correo, telefono visible y secciones.
-- `styles.css`: colores, tamanos y diseno.
-- `assets/hero-andicars.png`: imagen principal del sitio.
-
-## Siguientes datos que conviene definir
-
-- Telefono real de WhatsApp.
-- Email real.
-- Direccion o zona de atencion.
-- Stock real de autos con fotos.
-- Logo final de AndiCars si ya existe.
+La version vieja HTML/JS/CSS quedo en `legacy/`. No se usa en la app actual, pero se conserva como referencia historica.

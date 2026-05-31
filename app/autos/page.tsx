@@ -1,33 +1,11 @@
 import { SiteHeader } from "@/modules/core";
-import { demoVehicles, PublicVehicleCatalog, vehicleCardSelect } from "@/modules/vehicles";
+import { demoVehicles, getPublicVehicles, PublicVehicleCatalog } from "@/modules/vehicles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Vehicle } from "@/modules/vehicles";
 
 export const dynamic = "force-dynamic";
 
-async function getVehicles(): Promise<{ vehicles: Vehicle[]; errorMessage: string | null }> {
-  const supabase = createSupabaseServerClient();
-
-  if (!supabase) {
-    return { vehicles: demoVehicles, errorMessage: "Supabase no esta configurado en .env.local." };
-  }
-
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select(vehicleCardSelect)
-    .eq("is_published", true)
-    .in("status", ["disponible", "reservado"])
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    return { vehicles: [], errorMessage: error.message };
-  }
-
-  return { vehicles: data || [], errorMessage: null };
-}
-
 export default async function AutosPage() {
-  const { vehicles, errorMessage } = await getVehicles();
+  const { vehicles, errorMessage } = await getPublicVehicles(createSupabaseServerClient(), demoVehicles);
 
   return (
     <>

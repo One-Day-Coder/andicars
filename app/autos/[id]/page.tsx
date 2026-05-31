@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/modules/core";
 import { LeadForm } from "@/modules/crm";
 import { WhatsAppButton } from "@/modules/public-site";
-import { demoVehicles, VehicleGallery, vehicleCardSelect, type Vehicle, type VehiclePhoto } from "@/modules/vehicles";
+import { demoVehicles, getPublicVehicleById, getVehiclePhotos, VehicleGallery } from "@/modules/vehicles";
 import { formatKm, formatUsd } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -16,57 +16,16 @@ type VehicleDetailPageProps = {
   };
 };
 
-async function getVehicle(id: string): Promise<Vehicle | null> {
-  const demoVehicle = demoVehicles.find((vehicle) => vehicle.id === id);
-  const supabase = createSupabaseServerClient();
-
-  if (!supabase) {
-    return demoVehicle || null;
-  }
-
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select(vehicleCardSelect)
-    .eq("id", id)
-    .eq("is_published", true)
-    .single();
-
-  if (error || !data) {
-    return demoVehicle || null;
-  }
-
-  return data;
-}
-
-async function getVehiclePhotos(id: string): Promise<VehiclePhoto[]> {
-  const supabase = createSupabaseServerClient();
-
-  if (!supabase) {
-    return [];
-  }
-
-  const { data, error } = await supabase
-    .from("vehicle_photos")
-    .select("*")
-    .eq("vehicle_id", id)
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: true });
-
-  if (error || !data) {
-    return [];
-  }
-
-  return data;
-}
-
 export default async function VehicleDetailPage({ params }: VehicleDetailPageProps) {
-  const vehicle = await getVehicle(params.id);
+  const supabase = createSupabaseServerClient();
+  const demoVehicle = demoVehicles.find((item) => item.id === params.id) || null;
+  const vehicle = await getPublicVehicleById(supabase, params.id, demoVehicle);
 
   if (!vehicle) {
     notFound();
   }
 
-  const photos = await getVehiclePhotos(vehicle.id);
+  const photos = await getVehiclePhotos(supabase, vehicle.id);
   const title = `${vehicle.brand} ${vehicle.model}${vehicle.version ? ` ${vehicle.version}` : ""}`;
   const galleryImages = [
     ...(vehicle.main_photo_url ? [vehicle.main_photo_url] : []),
