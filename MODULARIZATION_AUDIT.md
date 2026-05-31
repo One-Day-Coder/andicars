@@ -265,3 +265,96 @@ rg "@/lib/admin-permissions" app modules lib types
 - Cada modulo activo tiene `index.ts`.
 - No se modifico SQL/RLS.
 - No se implemento multiempresa.
+
+## Limpieza Final Modular
+
+Fecha de esta verificacion final: 2026-05-31.
+
+### Archivos Eliminados
+
+Ya no existen estos archivos heredados:
+
+- `components/AdminGuard.tsx`
+- `components/AdminSummary.tsx`
+- `components/ExpensesPanel.tsx`
+- `components/LeadForm.tsx`
+- `components/LeadsPanel.tsx`
+- `components/PublicVehicleCatalog.tsx`
+- `components/ReportsPanel.tsx`
+- `components/SalesPanel.tsx`
+- `components/SettingsPanel.tsx`
+- `components/SiteHeader.tsx`
+- `components/UsersPanel.tsx`
+- `components/VehicleCard.tsx`
+- `components/VehicleForm.tsx`
+- `components/VehicleGallery.tsx`
+- `components/WhatsAppButton.tsx`
+- `lib/admin-permissions.ts`
+- `lib/vehicle-queries.ts`
+- `lib/demo-data.ts`
+- `types/vehicle.ts`
+
+### Archivos Conservados
+
+- `components/README.md`: se conserva para indicar que no deben agregarse componentes activos en `components/`.
+- `types/README.md`: se conserva para explicar que los tipos de dominio viven en `modules/*/types.ts`.
+- `lib/format.ts`: formateadores genericos.
+- `lib/supabase/client.ts`: cliente Supabase de navegador.
+- `lib/supabase/server.ts`: cliente Supabase de servidor.
+
+### Carpetas Eliminadas O Neutralizadas
+
+- `components/`: neutralizada, solo contiene README.
+- `types/`: neutralizada, solo contiene README.
+- `lib/`: limpia, solo infraestructura generica.
+- `modules/*/services`: sin README placeholder; solo quedan servicios reales donde existen.
+
+### Imports Antiguos
+
+Resultado final: sin referencias activas.
+
+Busquedas verificadas:
+
+```bash
+rg "@/components" app modules lib types
+rg "@/lib/vehicle-queries" app modules lib types
+rg "@/types/vehicle" app modules lib types
+rg "@/lib/admin-permissions" app modules lib types
+rg "@/lib/demo-data" app modules lib types
+```
+
+Tambien se verifico que no existan fisicamente:
+
+- `lib/admin-permissions.ts`
+- `lib/vehicle-queries.ts`
+- `lib/demo-data.ts`
+- `types/vehicle.ts`
+
+### Dependencias Entre Modulos
+
+- `modules/core` no importa tipos ni componentes de modulos de dominio.
+- `modules/vehicles` no depende de `modules/crm`.
+- `modules/crm` mantiene la relacion con vehiculos como dato opcional en el tipo `Lead`, sin depender de componentes de stock.
+- `modules/reports` puede importar tipos de otros modulos porque consolida informacion.
+- `lib/` no importa modulos de dominio.
+
+### Lint
+
+`npm.cmd run lint`: correcto.
+
+Advertencia no bloqueante:
+
+- `app/page.tsx` usa `<img>` y Next.js recomienda `next/image`.
+
+### Build
+
+`npm.cmd run build`: correcto.
+
+### Confirmaciones
+
+- No se modifico SQL/RLS.
+- No se modificaron archivos dentro de `database/`.
+- No se implemento multiempresa.
+- No se agregaron dependencias.
+- No se cambiaron rutas.
+- No se redisenaron pantallas.

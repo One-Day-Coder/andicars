@@ -3,8 +3,16 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type { AdminRole } from "@/modules/core/types";
-import type { Lead } from "@/modules/crm/types";
-import type { Vehicle } from "@/modules/vehicles/types";
+
+type SummaryVehicleRow = {
+  status: string;
+  is_published: boolean;
+  purchase_price_usd: number | null;
+};
+
+type SummaryLeadRow = {
+  status: string;
+};
 
 type Summary = {
   totalVehicles: number;
@@ -79,8 +87,8 @@ export function AdminSummary() {
 
     setRole((roleResult.data?.role as AdminRole | undefined) || null);
 
-    const vehicles = (vehiclesResult.data || []) as Pick<Vehicle, "status" | "is_published" | "purchase_price_usd">[];
-    const leads = (leadsResult.data || []) as Pick<Lead, "status">[];
+    const vehicles = (vehiclesResult.data || []) as SummaryVehicleRow[];
+    const leads = (leadsResult.data || []) as SummaryLeadRow[];
 
     setSummary({
       totalVehicles: vehicles.length,
