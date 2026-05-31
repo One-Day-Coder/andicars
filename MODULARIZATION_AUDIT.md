@@ -430,3 +430,138 @@ Ese README indica que los componentes activos viven en `modules/` y que no deben
 - No se implemento multiempresa.
 - No se cambiaron rutas.
 - No se agregaron dependencias.
+
+## Limpieza fisica final de archivos viejos
+
+Fecha de esta verificacion: 2026-05-31.
+
+### Listado fisico inicial
+
+Se verifico la carpeta local real del proyecto:
+
+```text
+C:\Proyectos\Web AndiCars
+```
+
+Resultado de `components/`:
+
+```text
+components/README.md
+```
+
+Resultado de `lib/`:
+
+```text
+lib/format.ts
+lib/supabase/client.ts
+lib/supabase/server.ts
+```
+
+Resultado de `types/`:
+
+```text
+types/README.md
+```
+
+Tambien se verifico el arbol versionado en Git (`HEAD`, branch `main`):
+
+```text
+components/README.md
+lib/format.ts
+lib/supabase/client.ts
+lib/supabase/server.ts
+types/README.md
+```
+
+### Archivos eliminados de components
+
+No se eliminaron archivos en esta pasada porque no existian fisicamente en la carpeta local ni en `HEAD`.
+
+Se confirmo que `components/` no contiene archivos `.tsx`, `.ts`, `.jsx` ni `.js` de dominio.
+
+### Estado final de components
+
+`components/` queda solo con:
+
+```text
+components/README.md
+```
+
+### Archivos eliminados de lib
+
+No se eliminaron archivos en esta pasada porque los archivos viejos ya no existian.
+
+Se verifico que no existen:
+
+```text
+lib/admin-permissions.ts
+lib/vehicle-queries.ts
+lib/demo-data.ts
+```
+
+### Estado final de lib
+
+`lib/` queda solo con infraestructura y utilidades genericas:
+
+```text
+lib/format.ts
+lib/supabase/client.ts
+lib/supabase/server.ts
+```
+
+La fuente de verdad para permisos es:
+
+```text
+modules/core/permissions.ts
+```
+
+### Estado final de types
+
+`types/` queda solo con:
+
+```text
+types/README.md
+```
+
+Se verifico que no existe:
+
+```text
+types/vehicle.ts
+```
+
+Los tipos de vehiculos viven en:
+
+```text
+modules/vehicles/types.ts
+```
+
+### Busquedas finales
+
+Sin resultados:
+
+```bash
+rg "@/components" app modules lib types components
+rg "@/types/vehicle" app modules lib types components
+rg "@/lib/vehicle-queries" app modules lib types components
+rg "@/lib/admin-permissions" app modules lib types components
+rg "@/lib/demo-data" app modules lib types components
+```
+
+### Validaciones
+
+`npm.cmd run lint`: correcto.
+
+Advertencia no bloqueante:
+
+- `app/page.tsx` usa `<img>` y Next.js recomienda `next/image`.
+
+`npm.cmd run build`: correcto.
+
+### Confirmaciones
+
+- No se toco SQL/RLS.
+- No se modificaron archivos dentro de `database/`.
+- No se implemento multiempresa.
+- No se agregaron dependencias.
+- No se cambiaron rutas.
+- No se redisenaron pantallas.
