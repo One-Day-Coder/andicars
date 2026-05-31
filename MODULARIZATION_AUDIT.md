@@ -358,3 +358,75 @@ Advertencia no bloqueante:
 - No se agregaron dependencias.
 - No se cambiaron rutas.
 - No se redisenaron pantallas.
+
+## Limpieza final de components
+
+Fecha de esta verificacion: 2026-05-31.
+
+### Objetivo
+
+Eliminar componentes viejos duplicados para evitar confusion entre `components/` y `modules/`.
+
+### Busquedas realizadas
+
+Se verifico `components/` junto con las rutas y modulos activos.
+
+Sin resultados:
+
+```bash
+rg "@/components" app modules lib types components
+rg "@/types/vehicle|@/lib/vehicle-queries|@/lib/admin-permissions|@/lib/demo-data" components app modules lib types
+```
+
+Con resultados esperados solo dentro de modulos:
+
+```bash
+rg "components" app modules lib types components
+```
+
+Los resultados encontrados fueron referencias internas como `modules/vehicles/components`, `modules/crm/components`, `modules/core/components`, etc. No son imports hacia la carpeta raiz `components/`.
+
+### Archivos eliminados
+
+No se eliminaron archivos en esta pasada porque los componentes viejos ya no existian.
+
+Se confirmo que no existen componentes activos dentro de `components/`, incluyendo:
+
+- `components/AdminGuard.tsx`
+- `components/AdminSummary.tsx`
+- `components/ExpensesPanel.tsx`
+- `components/LeadForm.tsx`
+- `components/LeadsPanel.tsx`
+- `components/PublicContactInfo.tsx`
+- `components/PublicVehicleCatalog.tsx`
+- `components/ReportsPanel.tsx`
+- `components/RoleGuard.tsx`
+- `components/SalesPanel.tsx`
+- `components/SettingsPanel.tsx`
+- `components/SiteHeader.tsx`
+- `components/UsersPanel.tsx`
+- `components/VehicleCard.tsx`
+- `components/VehicleForm.tsx`
+- `components/VehicleGallery.tsx`
+- `components/WhatsAppButton.tsx`
+
+### Estado final de components
+
+La carpeta `components/` se conserva solo con:
+
+- `components/README.md`
+
+Ese README indica que los componentes activos viven en `modules/` y que no deben agregarse componentes de dominio en `components/`.
+
+### Confirmaciones
+
+- No quedan imports activos hacia `@/components`.
+- No quedan imports activos hacia `@/types/vehicle`.
+- No quedan imports activos hacia `@/lib/vehicle-queries`.
+- No quedan imports activos hacia `@/lib/admin-permissions`.
+- No quedan imports activos hacia `@/lib/demo-data`.
+- No se toco SQL/RLS.
+- No se modificaron archivos dentro de `database/`.
+- No se implemento multiempresa.
+- No se cambiaron rutas.
+- No se agregaron dependencias.

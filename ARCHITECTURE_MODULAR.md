@@ -26,7 +26,7 @@ Scripts SQL de Supabase. En esta etapa no se cambiaron reglas RLS ni se agrego m
 
 `components/`
 
-Carpeta sin componentes activos de dominio. Tiene un README para recordar que los componentes deben vivir en `modules/`.
+Carpeta neutralizada. No contiene componentes activos de dominio, solo un README para recordar que los componentes activos viven en `modules/`.
 
 `types/`
 
@@ -97,6 +97,8 @@ Si el cambio es de configuracion editable, revisar `modules/settings`.
 Si el cambio es de usuarios internos, revisar `modules/users`.
 
 Si el cambio es de textos publicos, contacto o home comercial, revisar `modules/public-site`.
+
+No agregar componentes de dominio en `components/`. Esa carpeta queda solo como aviso historico para evitar duplicados entre la arquitectura vieja y la modular.
 
 ## Reglas De Imports
 

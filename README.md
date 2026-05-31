@@ -8,9 +8,12 @@ La app actual esta construida con Next.js + Supabase y se despliega en Vercel.
 
 - `app/`: rutas de Next.js.
 - `modules/`: arquitectura modular por area del negocio.
+- `components/`: carpeta neutralizada; no contiene componentes activos.
 - `lib/`: infraestructura compartida, Supabase y formateadores genericos.
 - `database/`: scripts SQL de Supabase.
 - `legacy/`: version vieja estatica conservada como referencia.
+
+Los componentes activos viven dentro de `modules/`. Para trabajar por area, usar el modulo correspondiente: vehiculos en `modules/vehicles`, consultas en `modules/crm`, gastos en `modules/expenses`, ventas en `modules/sales`, reportes en `modules/reports`, configuracion en `modules/settings`, usuarios en `modules/users` y permisos/layout comun en `modules/core`.
 
 Para entender la arquitectura, leer `ARCHITECTURE_MODULAR.md`.
 
