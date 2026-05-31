@@ -1,7 +1,7 @@
 -- Fase 1: Multiempresa minima
 -- Este script crea companies, company_modules y la empresa default AndiCars.
 -- No agrega company_id a tablas existentes.
--- No modifica RLS.
+-- Activa RLS en companies y company_modules para evitar exposicion publica accidental.
 -- No modifica policies.
 -- No debe ejecutarse sin revision previa.
 
@@ -140,10 +140,13 @@ set
 -- ============================================================
 -- 7. RLS y fases futuras
 -- ============================================================
--- Esta fase no activa RLS en companies ni company_modules.
+-- Esta fase activa RLS en companies y company_modules para evitar exposicion publica accidental.
 -- Esta fase no crea policies.
 -- Esta fase no agrega company_id a tablas existentes.
--- RLS, company_id y backfill quedan para fases futuras revisadas aparte.
+-- RLS con policies queda para fases futuras.
+
+alter table public.companies enable row level security;
+alter table public.company_modules enable row level security;
 
 -- ============================================================
 -- 8. Validacion manual
