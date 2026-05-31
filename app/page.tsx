@@ -1,12 +1,9 @@
 import Link from "next/link";
-import { PublicContactInfo } from "@/components/PublicContactInfo";
-import { SiteHeader } from "@/components/SiteHeader";
-import { PasswordRecoveryRedirect } from "@/components/PasswordRecoveryRedirect";
-import { VehicleCard } from "@/components/VehicleCard";
-import { demoVehicles } from "@/lib/demo-data";
+import { PasswordRecoveryRedirect, SiteHeader } from "@/modules/core";
+import { PublicContactInfo } from "@/modules/public-site";
+import { demoVehicles, VehicleCard, vehicleCardSelect } from "@/modules/vehicles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { vehicleCardSelect } from "@/lib/vehicle-queries";
-import type { Vehicle } from "@/types/vehicle";
+import type { Vehicle } from "@/modules/vehicles";
 
 export const dynamic = "force-dynamic";
 

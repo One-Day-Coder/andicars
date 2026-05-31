@@ -1,7 +1,5 @@
-import { AdminGuard } from "@/components/AdminGuard";
-import { RoleGuard } from "@/components/RoleGuard";
-import { SalesPanel } from "@/components/SalesPanel";
-import { SiteHeader } from "@/components/SiteHeader";
+import { AdminGuard, RoleGuard, SiteHeader } from "@/modules/core";
+import { SalesPanel } from "@/modules/sales";
 
 export default function AdminSalesPage() {
   return (

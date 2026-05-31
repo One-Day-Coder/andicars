@@ -1,7 +1,5 @@
-import { AdminGuard } from "@/components/AdminGuard";
-import { RoleGuard } from "@/components/RoleGuard";
-import { SiteHeader } from "@/components/SiteHeader";
-import { VehicleForm } from "@/components/VehicleForm";
+import { AdminGuard, RoleGuard, SiteHeader } from "@/modules/core";
+import { VehicleForm } from "@/modules/vehicles";
 
 export default function AdminVehiclesPage() {
   return (
@@ -14,7 +12,7 @@ export default function AdminVehiclesPage() {
             <h1>Carga de vehiculos</h1>
             <p>
               Los autos guardados aca se registran en Supabase. Si marcas
-              "Publicar en la web" y el estado es disponible o reservado, aparecen
+              &quot;Publicar en la web&quot; y el estado es disponible o reservado, aparecen
               en el catalogo publico.
             </p>
           </section>

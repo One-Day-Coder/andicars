@@ -1,7 +1,5 @@
-import { AdminGuard } from "@/components/AdminGuard";
-import { LeadsPanel } from "@/components/LeadsPanel";
-import { RoleGuard } from "@/components/RoleGuard";
-import { SiteHeader } from "@/components/SiteHeader";
+import { AdminGuard, RoleGuard, SiteHeader } from "@/modules/core";
+import { LeadsPanel } from "@/modules/crm";
 
 export default function AdminLeadsPage() {
   return (

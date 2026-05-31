@@ -1,7 +1,5 @@
-import { AdminGuard } from "@/components/AdminGuard";
-import { RoleGuard } from "@/components/RoleGuard";
-import { SiteHeader } from "@/components/SiteHeader";
-import { UsersPanel } from "@/components/UsersPanel";
+import { AdminGuard, RoleGuard, SiteHeader } from "@/modules/core";
+import { UsersPanel } from "@/modules/users";
 
 export default function AdminUsersPage() {
   return (

@@ -1,7 +1,5 @@
-import { AdminGuard } from "@/components/AdminGuard";
-import { RoleGuard } from "@/components/RoleGuard";
-import { SettingsPanel } from "@/components/SettingsPanel";
-import { SiteHeader } from "@/components/SiteHeader";
+import { AdminGuard, RoleGuard, SiteHeader } from "@/modules/core";
+import { SettingsPanel } from "@/modules/settings";
 
 export default function AdminSettingsPage() {
   return (

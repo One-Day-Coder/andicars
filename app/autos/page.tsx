@@ -1,9 +1,7 @@
-import { SiteHeader } from "@/components/SiteHeader";
-import { PublicVehicleCatalog } from "@/components/PublicVehicleCatalog";
-import { demoVehicles } from "@/lib/demo-data";
+import { SiteHeader } from "@/modules/core";
+import { demoVehicles, PublicVehicleCatalog, vehicleCardSelect } from "@/modules/vehicles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { vehicleCardSelect } from "@/lib/vehicle-queries";
-import type { Vehicle } from "@/types/vehicle";
+import type { Vehicle } from "@/modules/vehicles";
 
 export const dynamic = "force-dynamic";
 

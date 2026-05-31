@@ -1,7 +1,5 @@
-import { AdminGuard } from "@/components/AdminGuard";
-import { ReportsPanel } from "@/components/ReportsPanel";
-import { RoleGuard } from "@/components/RoleGuard";
-import { SiteHeader } from "@/components/SiteHeader";
+import { AdminGuard, RoleGuard, SiteHeader } from "@/modules/core";
+import { ReportsPanel } from "@/modules/reports";
 
 export default function AdminReportsPage() {
   return (

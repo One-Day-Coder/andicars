@@ -1,7 +1,5 @@
-import { AdminGuard } from "@/components/AdminGuard";
-import { ExpensesPanel } from "@/components/ExpensesPanel";
-import { RoleGuard } from "@/components/RoleGuard";
-import { SiteHeader } from "@/components/SiteHeader";
+import { AdminGuard, RoleGuard, SiteHeader } from "@/modules/core";
+import { ExpensesPanel } from "@/modules/expenses";
 
 export default function AdminExpensesPage() {
   return (

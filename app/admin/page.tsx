@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AdminGuard } from "@/components/AdminGuard";
-import { AdminSummary } from "@/components/AdminSummary";
-import { SiteHeader } from "@/components/SiteHeader";
-import { canAccessModule, type AdminModule } from "@/lib/admin-permissions";
+import { AdminGuard, AdminSummary, canAccessModule, SiteHeader, type AdminModule } from "@/modules/core";
 import { supabase } from "@/lib/supabase/client";
-import type { AdminRole } from "@/types/vehicle";
+import type { AdminRole } from "@/modules/core";
 
 type PanelLink = {
   module: AdminModule;

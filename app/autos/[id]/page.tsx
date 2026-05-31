@@ -1,15 +1,12 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
-import { SiteHeader } from "@/components/SiteHeader";
-import { LeadForm } from "@/components/LeadForm";
-import { VehicleGallery } from "@/components/VehicleGallery";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { demoVehicles } from "@/lib/demo-data";
+import { SiteHeader } from "@/modules/core";
+import { LeadForm } from "@/modules/crm";
+import { WhatsAppButton } from "@/modules/public-site";
+import { demoVehicles, VehicleGallery, vehicleCardSelect, type Vehicle, type VehiclePhoto } from "@/modules/vehicles";
 import { formatKm, formatUsd } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { vehicleCardSelect } from "@/lib/vehicle-queries";
-import type { Vehicle, VehiclePhoto } from "@/types/vehicle";
 
 export const dynamic = "force-dynamic";
 
